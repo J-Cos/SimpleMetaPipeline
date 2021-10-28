@@ -1,8 +1,8 @@
-# ypu can specify what clustering level you want to assign to
+# you can specify what clustering level you want to assign to
 
 
-RunIdtaxa<-function(trainingSet, TableToMergeTo=LuluOutput, SeqsToAssign=SeqsToAssign, threshold=0) {
-
+RunIdtaxa<-function(Type, trainingSet, TableToMergeTo=LuluOutput, SeqsToAssign=SeqsToAssign, threshold=0) {
+    if (Type == "Load" | Type == "Create") {
             #SeqsToAssign should modify which seqs are selected here
             if (SeqsToAssign=="ESVs"){
                 dna <- Biostrings::DNAStringSet(LuluOutput[,2])
@@ -32,5 +32,8 @@ RunIdtaxa<-function(trainingSet, TableToMergeTo=LuluOutput, SeqsToAssign=SeqsToA
 
 
             return(list(SeqDataTable=SeqDataTable, IDTAXAplotdata=(ids), trainingSet=trainingSet))
-
-        }
+    } else {
+        print("No assignment performed")
+        return(NULL)
+    }
+}

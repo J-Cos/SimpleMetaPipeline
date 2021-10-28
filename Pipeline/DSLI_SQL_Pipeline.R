@@ -103,7 +103,7 @@
             trainingSet<-GetTrainingSet(Type=Type, RefLibrary= RefLibrary)
 
     # 6.1 Run Module
-            IdtaxaOutput<-RunIdtaxa(trainingSet, TableToMergeTo=LuluOutput, SeqsToAssign=SeqsToAssign, threshold=threshold)
+            IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet, TableToMergeTo=LuluOutput, SeqsToAssign=SeqsToAssign, threshold=threshold)
         #inspect outputs
 
 
@@ -117,24 +117,25 @@
             ConfirmInputsPresent("LuluOutput")
             ConfirmInputsPresent("IdtaxaOutput")
 
-    # 7.1 save sequences and clusters to database
+    # 7.1 save sequences and clusters to results
         #SaveSequenceDataTableToDataBase(Input=IdtaxaOutput)
-        saveRDS(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
 
-
-        #make sure measures of each module are output here 
-
-        #save plots            
+        #save dada plots            
 
             glist <- lapply(DadaOutput$SecondaryOutputs$DadaPlots, ggplotGrob)
             ggsave(file.path(path,"Results",paste0(dataname,"_DadaPlots.pdf")), marrangeGrob(glist, nrow = 1, ncol = 1))
             
-            pdf(file = file.path(path, "Results", paste0(dataname, "_TaxaAssignment.pdf")))   # The directory you want to save the file in
-            plot(IdtaxaOutput$IDTAXAplotdata, IdtaxaOutput$trainingSet)
-            dev.off()
-
-        #save tables
+        #save dada and overall clustering tables
             write.csv( DadaOutput$SecondaryOutputs$DadaTables, file=file.path(path,"Results",paste0(dataname,"_DadaTable.csv")) )
             
             WriteClusteringTable()
 
+            if ( ! is.null(IdtaxaOutput) ) {
+                saveRDS(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
+
+                pdf(file = file.path(path, "Results", paste0(dataname, "_TaxaAssignment.pdf")))   # The directory you want to save the file in
+                plot(IdtaxaOutput$IDTAXAplotdata, IdtaxaOutput$trainingSet)
+                dev.off()
+            } else {
+                saveRDS(LuluOutput, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
+            }
