@@ -7,15 +7,14 @@
                 # ReferenceLibraries - fill this file with your taxonomic reference library formatted either as i) ... or ii) ...
                 # IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
                 # Results - this is where final results will be saved
-        dataname="16s_test"
+        dataname="COI_test"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.
 
-
     # DADA2 settings
-        truncLen=c(150,150)
+        truncLen=c(240,240)
             #the length at which the sequences should be truncated (forward and reverse)
-        trimLeft=c(0,0)
+        trimLeft=c(26,26)
             # the # of bases to remove from the start of the sequences
         maxN=0
             # after truncation seqs with more than this number of Ns are discarded (DADA2 does not allow Ns)
@@ -41,7 +40,7 @@
             # % matching bases to consider clustering OTUs if co-occurence seen. 
 
     # IDTAXA settings
-        Type ="Load"  
+        Type ="No Assignment"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
         RefLibrary= "SILVA_SSU_r138_2019.RData" 
             #ref library to load if loading
