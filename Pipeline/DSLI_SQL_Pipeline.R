@@ -136,9 +136,5 @@
         #save tables
             write.csv( DadaOutput$SecondaryOutputs$DadaTables, file=file.path(path,"Results",paste0(dataname,"_DadaTable.csv")) )
             
-            ClusteringTable<-data.frame(  
-                "Number of ESVs"= dim(IdtaxaOutput$SeqDataTable)[1], 
-                "Number of OTUs" = dim(unique(IdtaxaOutput$SeqDataTable[2]))[1], 
-                "Number of cOTUs" = dim(unique(IdtaxaOutput$SeqDataTable[7]))[1])
+            WriteClusteringTable()
 
-            write.csv( ClusteringTable, file=file.path(path,"Results",paste0(dataname,"_ClusteringTable.csv")) )
