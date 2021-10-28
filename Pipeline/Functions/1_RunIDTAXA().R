@@ -2,7 +2,7 @@
 
 
 RunIdtaxa<-function(Type, trainingSet, TableToMergeTo=LuluOutput, SeqsToAssign=SeqsToAssign, threshold=0) {
-    if (Type == "Load" | Type == "Create") {
+    if (Type == "Load") {
             #SeqsToAssign should modify which seqs are selected here
             if (SeqsToAssign=="ESVs"){
                 dna <- Biostrings::DNAStringSet(LuluOutput[,2])
