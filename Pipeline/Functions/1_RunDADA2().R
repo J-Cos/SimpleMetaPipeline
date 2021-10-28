@@ -1,10 +1,10 @@
-        RunDADA2<-function( truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), truncQ=2, dataname=NULL, multithread, pool) {
+        RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), truncQ=2, dataname=NULL, multithread, pool) {
             #stop function if necessary arguments blank                    
             if (is.null(truncLen) | is.null(trimLeft)) stop("You must specify truncLen and trimLeft")
 
             # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
-            fnFs<-loadFastq(pattern="_R1_001.fastq")
-            fnRs<-loadFastq(pattern="_R2_001.fastq")
+            fnFs<-loadFastq(FASTQ_folder=dataname, pattern="_R1_001.fastq")
+            fnRs<-loadFastq(FASTQ_folder=dataname, pattern="_R2_001.fastq")
 
             # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
             SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1)
