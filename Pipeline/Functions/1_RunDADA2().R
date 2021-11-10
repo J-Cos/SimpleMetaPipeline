@@ -1,4 +1,4 @@
-        RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), truncQ=2, dataname=NULL, multithread, pool) {
+        RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), truncQ=2, DesiredSequenceLengthRange=NULL, dataname=NULL, multithread, pool) {
             #stop function if necessary arguments blank                    
             if (is.null(truncLen) | is.null(trimLeft)) stop("You must specify truncLen and trimLeft")
 
@@ -30,6 +30,14 @@
             #make sequence table
             seqtab <- makeSequenceTable(mergers)
 
+            #cut to specific length if needed
+            if (!is.null(DesiredSequenceLengthRange)) {
+                seqtab <- seqtab[,nchar(colnames(seqtab)) %in% DesiredSequenceLengthRange]
+            }
+
+            #make sequence length distribution table
+            SeqLengthDist<-table(nchar(getSequences(seqtab)))
+
             #remove chimeras
             seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", 
                                                 multithread=multithread, verbose=TRUE)
@@ -51,5 +59,5 @@
             ESVtable<-seqtab.nochim
             ESVsequences <- colnames(ESVtable)    
 
-            return(list("ESVtable"=ESVtable, "ESVsequences"=ESVsequences, "SecondaryOutputs"=list("DadaPlots"=DadaPlots, "DadaTables"=DadaTables)))
+            return(list("ESVtable"=ESVtable, "ESVsequences"=ESVsequences, "SecondaryOutputs"=list("DadaPlots"=DadaPlots, "DadaTables"=DadaTables, "SeqLengthDist"=SeqLengthDist)))
         }

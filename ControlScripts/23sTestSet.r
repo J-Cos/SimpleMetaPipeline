@@ -25,6 +25,11 @@
             # of the quality score: EE = sum(10^(-Q/10))
         truncQ=2
             # Truncate reads at the first instance of a quality score less than or equal to ‘truncQ’.  
+        DesiredSequenceLengthRange=NULL
+            #sequence length range to keep enter as e.g. 360:270, if NULL all sequence lengths are kept. 
+            # Sequences that are much longer or shorter than expected
+            # may be the result of non-specific priming. This removal is analogous to “cutting a band” 
+            # in-silico to get amplicons of the targeted length.
         pool="pseudo"
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)

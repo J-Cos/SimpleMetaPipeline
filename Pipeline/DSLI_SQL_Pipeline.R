@@ -42,7 +42,8 @@
                                 trimLeft=trimLeft, 
                                 maxN=maxN, 
                                 maxEE=maxEE, 
-                                truncQ=truncQ, 
+                                truncQ=truncQ,
+                                DesiredSequenceLengthRange=DesiredSequenceLengthRange,
                                 dataname=dataname,
                                 multithread=multithread,
                                 pool=pool)
