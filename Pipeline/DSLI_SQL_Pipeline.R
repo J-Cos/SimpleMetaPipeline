@@ -5,7 +5,7 @@
 # secondary results of various outputs such as figures and tables detailing the processing step. The primary 
 # result of each step is input to an SQL database, the secondary results are saved to a csv or pdf as appropriate.
 
-# DO NOT adjust this pipeline for the purpose of analysing a single dataset. Adjustments here should isntead reflect
+# DO NOT adjust this pipeline for the purpose of analysing a single dataset. Adjustments here should instead reflect
 #optimisation of the general pipeline. 
 
 # to parameterise the pipeline for a specific dataset please create a new ParameterSet script.
@@ -28,8 +28,8 @@
                     gridExtra)
 
     #Functions
-    function_files<-list.files(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions"))
-    sapply(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions",function_files),source)
+        function_files<-list.files(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions"))
+        sapply(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions",function_files),source)
 
 #3 DADA2
     # 3.0 process inputs

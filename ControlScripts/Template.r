@@ -1,7 +1,7 @@
 #settings
     # general settings
         path <-"../../BioinformaticPipeline_Env"
-            # this should be the path to the working directory within which you have the following folders:
+            # this should be the path to the pipeline environment within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
                 # FASTQs - fill this file with your unmerged multiplexed raw FASTQ files
                 # ReferenceLibraries - fill this file with your taxonomic reference library formatted either as i) ... or ii) ...
@@ -53,7 +53,8 @@
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
         threshold=60
-            # %age confidence of assignment required to record assignment
+            # %age confidence of assignment required to record assignment 
+            # ( top two ranks always receive assignments no matter the confidence)
 
 # run pipeline
     source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
