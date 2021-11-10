@@ -53,6 +53,7 @@
             #DadaOutput$ESVsequences
             #DadaOutput$SecondaryOutputs$DadaPlots
             #DadaOutput$SecondaryOutputs$DadaTables
+            #DadaOutput$SecondaryOutputs$SeqLengthDist
 
     # 3.2 cache Output
         CacheOutput(DadaOutput)
@@ -129,6 +130,8 @@
         #save dada and overall clustering tables
             write.csv( DadaOutput$SecondaryOutputs$DadaTables, file=file.path(path,"Results",paste0(dataname,"_DadaTable.csv")) )
             
+            write.csv( DadaOutput$SecondaryOutputs$SeqLengthDist, file=file.path(path,"Results",paste0(dataname,"_DadaSeqLengthDistribution.csv")) )
+
             WriteClusteringTable()
 
             if ( ! is.null(IdtaxaOutput) ) {
