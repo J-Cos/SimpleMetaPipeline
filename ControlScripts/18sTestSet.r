@@ -42,8 +42,24 @@
             
 
     # lulu settings
-        MatchlistRate=90 #as a %
+        MatchRate=84 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
+        MinRelativeCo = 0.95 #as a decimal, default 0.95
+        #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
+         # lower rate of occurrence of the potential error explained by
+         # co-occurrence with the potential parent for considering error
+         # state.
+        RatioType = "min" # options: "min" and "avg"
+        #sets whether a potential error must have lower
+        #  abundance than the parent in all samples ‘min’ (default), or
+        #  if an error just needs to have lower abundance on average
+        #  ‘avg’. Choosing lower abundance on average over globally
+        #  lower abundance will greatly increase the number of
+        #  designated errors. This option was introduced to make it
+        #  possible to account for non-sufficiently clustered
+        #  intraspecific variation, but is not generally recommended, as
+        #  it will also increase the potential of clustering
+        #  well-separated, but co-occuring, sequence similar species. 
 
     # IDTAXA settings
         Type ="Load"  

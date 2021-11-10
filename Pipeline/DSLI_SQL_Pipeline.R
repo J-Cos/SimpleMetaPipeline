@@ -82,11 +82,12 @@
 
         OtuTableForLulu<-CreateOtuTableForLulu(Input=SwarmOutput)
 
-        MatchListForLulu<-CreateMatchlistForLulu(Input=SwarmOutput ,MatchlistRate)
+        MatchListForLulu<-CreateMatchlistForLulu(Input=SwarmOutput ,MatchRate)
     
     # 5.1 Run Module
-        LuluOutput<-RunLULU(TableToMergeTo=SwarmOutput) # inputs are Otutable and matchlist created previously
+        LuluOutput<-RunLULU(TableToMergeTo=SwarmOutput, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType) # inputs are Otutable and matchlist created previously
         #inspect outputs
+        colSums(LuluOutput[7])
 
     # 5.2 cache Output
         CacheOutput(LuluOutput)

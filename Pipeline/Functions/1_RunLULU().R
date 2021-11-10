@@ -1,7 +1,7 @@
-RunLULU<-function(TableToMergeTo) {
+RunLULU<-function(TableToMergeTo, MatchRate, MinRelativeCo, RatioType) {
 
         #run lulu
-            curated_result<-lulu(OtuTableForLulu, MatchListForLulu)
+            curated_result<-lulu(OtuTableForLulu, MatchListForLulu, minimum_ratio_type =RatioType, minimum_match =MatchRate , minimum_relative_cooccurence = MinRelativeCo)
 
         #combine output into seq datatable
             curated_OTU_map<-curated_result$otu_map
