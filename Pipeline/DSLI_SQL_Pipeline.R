@@ -17,17 +17,15 @@
     #installed software
         #vsearch
         #swarm v2
-    
-    #R Packages
-        library(dada2)
-        library(seqinr)
-        library(DECIPHER)
-        library(tidyverse)
-        library(lulu)
-        #library(Biostrings)
-        #library(gsubfn)
-        library(ggplot2)
-        library(gridExtra)
+    #R packages
+    if (!require("pacman")) install.packages("pacman")
+    pacman::p_load( dada2,
+                    seqinr,
+                    DECIPHER,
+                    tidyverse,
+                    lulu,
+                    ggplot2,
+                    gridExtra)
 
     #Functions
     function_files<-list.files(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions"))
