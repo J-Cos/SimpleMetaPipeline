@@ -1,10 +1,18 @@
 # BioinformaticPipeline
- General Bioinformatic Pipeline, and parameter sets recorded for specific datasets
  General Bioinformatic Pipeline, and parameter sets recorded for specific datasets.
 
 # 1) directory structure
  Before you start you need the right directory structure.
 
+ First run this code in R
+            setwd() #set this to where you want the pipeline environment to be located
+            path <-"../../BioinformaticPipeline_Env"
+            dir.create("BioinformaticPipeline_Env")
+            dir.create((file.path("BioinformaticPipeline_Env", "FASTQs")))
+            dir.create((file.path("BioinformaticPipeline_Env", "Data")))
+
+            dir.create((file.path("BioinformaticPipeline_Env", "IntermediateOutputs")))
+            dir.create((file.path("BioinformaticPipeline_Env", "Results")))
 
 This creates a directory structure as follows
                 # FASTQs - fill this file with your unmerged multiplexed raw FASTQ files
