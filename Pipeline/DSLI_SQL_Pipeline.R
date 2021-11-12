@@ -47,8 +47,7 @@
                                 pool=pool)
 
         #inspect outputs
-            #DadaOutput$ESVtable
-            #DadaOutput$ESVsequences
+            #DadaOutput$SeqDataTable
             #DadaOutput$SecondaryOutputs$DadaPlots
             #DadaOutput$SecondaryOutputs$DadaTables
             #DadaOutput$SecondaryOutputs$SeqLengthDist
@@ -63,7 +62,7 @@
         #if DadaOutput not loaded then read it in
             ConfirmInputsPresent("DadaOutput")
         #convert ESV sequences to fasta with abundances for input into swarmv2    
-            CreateFastaWithAbundances(ESVtable=DadaOutput$ESVtable, ESVsequences=DadaOutput$ESVsequences)
+            CreateFastaWithAbundances(SeqDataTable=DadaOutput$SeqDataTable, clustering=ESV)
 
 
     # 4.1 Run Module
@@ -86,8 +85,6 @@
     
     # 5.1 Run Module
         LuluOutput<-RunLULU(TableToMergeTo=SwarmOutput, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType) # inputs are Otutable and matchlist created previously
-        #inspect outputs
-        colSums(LuluOutput[7])
 
     # 5.2 cache Output
         CacheOutput(LuluOutput)

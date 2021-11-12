@@ -55,9 +55,13 @@
             DadaPlots[[3]]<-plotErrors(errF, nominalQ=TRUE)
             DadaPlots[[4]]<-plotErrors(errR, nominalQ=TRUE)
                 
-            #extract ESV data 
+            #format ESV data 
             ESVtable<-seqtab.nochim
-            ESVsequences <- colnames(ESVtable)    
+            ESVtable<-t(ESVtable) # make samples columns
+            ESVtable<-cbind(paste0("ESV_",1:dim(ESVtable)[1]), rownames_to_column(as.data.frame(ESVtable))) #add esv id column
+            names(ESVtable)[1:2]<-c("ESV", "Sequence")
+            names(ESVtable)[3:length(names(ESVtable))]<-paste0("Sample_", names(ESVtable)[3:length(names(ESVtable))]) # giving all samples "Sample_" prefix
 
-            return(list("ESVtable"=ESVtable, "ESVsequences"=ESVsequences, "SecondaryOutputs"=list("DadaPlots"=DadaPlots, "DadaTables"=DadaTables, "SeqLengthDist"=SeqLengthDist)))
+
+            return(list("SeqDataTable"=ESVtable, "SecondaryOutputs"=list("DadaPlots"=DadaPlots, "DadaTables"=DadaTables, "SeqLengthDist"=SeqLengthDist)))
         }

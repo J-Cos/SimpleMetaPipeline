@@ -2,7 +2,7 @@
 CreateMatchlistForLulu<-function(Input=SwarmOutput, MatchRate) {
             #get otu labelled fasta for lulu
             OTUseqs<-Input[which(Input$OTUrepresentativeSequence==TRUE),]
-            write.fasta(sequences=as.list(OTUseqs$sequence), names=OTUseqs$OTU,
+            write.fasta(sequences=as.list(OTUseqs$Sequence), names=OTUseqs$OTU,
                                 file.out=file.path(path, "IntermediateOutputs", paste0(dataname, "_OTUsequences.fasta")))
 
             #create matchlist from fasta

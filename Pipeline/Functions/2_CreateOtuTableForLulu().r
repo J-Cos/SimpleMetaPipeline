@@ -1,11 +1,15 @@
 CreateOtuTableForLulu<-function(Input=SwarmOutput){
             
-            nsamples<-dim(DadaOutput$ESVtable)[1]
+            nsamples<-DadaOutput$SeqDataTable %>%
+                        select(starts_with("Sample")) %>% 
+                        dim() %>%
+                        '['(2)
 
 
             #extract from SeqDataTable
-            OTUtable<-Input[,2:(2+nsamples)]%>%
+            OTUtable<-Input%>%
                 group_by(OTU) %>%
+                select(starts_with("Sample")) %>% 
                     summarise_each(funs(sum))
             
             #convert to df and set OTU names to rownames
