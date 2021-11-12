@@ -71,4 +71,6 @@
             # %age confidence of assignment required to record assignment
 
 # run pipeline
-    source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
+    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
+    source(file.path(path, "BioinformaticPipeline", "Pipeline", "DLSL_Pipeline.R"))
+

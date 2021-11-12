@@ -62,7 +62,7 @@
         #  well-separated, but co-occuring, sequence similar species.
 
     # IDTAXA settings
-        Type ="Load"  
+        Type ="No"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
         RefLibrary= "SILVA_SSU_r138_2019.RData" 
             #ref library to load if loading
@@ -73,3 +73,4 @@
 
 # run pipeline
     source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
+    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DLSL_Pipeline.R"))

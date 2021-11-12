@@ -62,14 +62,16 @@
         #  well-separated, but co-occuring, sequence similar species.
 
     # IDTAXA settings
-        Type ="Load"  
+        Type ="No"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
         RefLibrary= "microgreen_trainingSet.Rdata" 
             #ref library to load if loading
-        SeqsToAssign ="ESVs"
+        SeqsToAssign ="cOTUs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
         threshold=60
             # %age confidence of assignment required to record assignment
 
 # run pipeline
-    source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
+    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
+    source(file.path(path, "BioinformaticPipeline", "Pipeline", "DLSL_Pipeline.R"))
+
