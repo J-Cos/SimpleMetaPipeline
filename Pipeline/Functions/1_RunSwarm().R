@@ -33,8 +33,7 @@ RunSwarm<-function(differences, threads, TableToMergeTo){
                     SeqDataTable<-merge(TableToMergeTo, SeqDataTable, by="Sequence", all=TRUE)
                 
                 #but when performed on cESVs (dada then lulu1) (i.e. when some ESVs have been removed before swarm)
-                # we need to then back fill the correct otu 
-                #assignments dependings on which cESV ESVs have been grouped into. 
+                # we need to then back fill the correct otu assignments for each ESV depending on which cESV ESVs have been grouped into. 
                     removedESVs<-which(is.na(SeqDataTable["OTU"]))
                     if (length(removedESVs)!=0) {
                         for (i in 1: length(removedESVs) ) {
@@ -47,10 +46,6 @@ RunSwarm<-function(differences, threads, TableToMergeTo){
 
                         }
                     }
-
-            if (!identical(TableToMergeTo, DadaOutput$SeqDataTable)) { # label esv which are not OTU representatives as also not being cOTUrepresentatives
-                SeqDataTable$OTUrepresentativeSequence<-SeqDataTable$CuratedESVRepresentativeSequence==TRUE & SeqDataTable$OTUrepresentativeSequence==TRUE
-             }
 
             return(SeqDataTable)
 }
