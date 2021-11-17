@@ -52,8 +52,10 @@
             DadaPlots<-c()
             DadaPlots[[1]]<-plotQualityProfile(fnFs) #example
             DadaPlots[[2]]<-plotQualityProfile(fnRs) #example
-            DadaPlots[[3]]<-plotErrors(errF, nominalQ=TRUE)
-            DadaPlots[[4]]<-plotErrors(errR, nominalQ=TRUE)
+            DadaPlots[[3]]<-plotQualityProfile(filtFs) #example
+            DadaPlots[[4]]<-plotQualityProfile(filtRs) #example
+            DadaPlots[[5]]<-plotErrors(errF, nominalQ=TRUE)
+            DadaPlots[[6]]<-plotErrors(errR, nominalQ=TRUE)
                 
             #format ESV data 
             ESVtable<-seqtab.nochim
