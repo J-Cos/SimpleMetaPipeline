@@ -1,17 +1,26 @@
-        RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), truncQ=2, DesiredSequenceLengthRange=NULL, dataname=NULL, multithread, pool) {
+        RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), 
+                            truncQ=2, DesiredSequenceLengthRange=NULL, dataname=NULL, multithread, pool,
+                            UseCutadapt=FALSE) {
             #stop function if necessary arguments blank                    
             if (is.null(truncLen) | is.null(trimLeft)) stop("You must specify truncLen and trimLeft")
 
-            # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
-            fnFs<-loadFastq(FASTQ_folder=dataname, pattern="_R1_001.fastq")
-            fnRs<-loadFastq(FASTQ_folder=dataname, pattern="_R2_001.fastq")
+            #get filenames of fastas from right folder depending on if cutadapt run
+            if (UseCutadapt==FALSE) {
+                # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
+                fnFs<-loadFastq(FASTQ_folder=dataname, pattern="_R1_001.fastq")
+                fnRs<-loadFastq(FASTQ_folder=dataname, pattern="_R2_001.fastq")
+            } else if (UseCutadapt==TRUE) {
+                fnFs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R1_001.fastq", full.names = TRUE))
+                fnRs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R2_001.fastq", full.names = TRUE))
+            }
+
 
             # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
             SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1)
             
             # Create paths for filtered outputs
-            filtFs<-createOutputFilePaths(suffix="_F_filt.fastq.gz", outputDirectoryPrefix="filteredsequences")
-            filtRs<-createOutputFilePaths(suffix="_R_filt.fastq.gz", outputDirectoryPrefix="filteredsequences")
+            filtFs<-createOutputFilePaths(suffix="_F_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
+            filtRs<-createOutputFilePaths(suffix="_R_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
 
             #filter and trim
             out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=truncLen,

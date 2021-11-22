@@ -32,6 +32,25 @@
         function_files<-list.files(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions"))
         sapply(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions",function_files),source)
 
+
+#3 Cutadapt
+    # 3.0 process inputs
+        #none required 
+    
+    # 3.1 Run Module
+    CutadaptOutput<-RunCutadapt(FWD ="ACCTGCGGARGGATCA",  ## CHANGE ME to your forward primer sequence
+                REV = "GAGATCCRTTGYTRAAAGTT",  ## CHANGE ME...
+                multithread=TRUE,
+                dataname=dataname,
+                UseCutadapt=UseCutadapt)
+
+        #inspect outputs
+            #CutadaptOutput$PrimerCountSamplesList
+            #CutadaptOutput$PrimerCountCutadaptedSamplesList
+
+    # 3.2 cache Output
+        CacheOutput(CutadaptOutput)
+
 #3 DADA2
     # 3.0 process inputs
         #none required 
@@ -56,29 +75,48 @@
     # 3.2 cache Output
         CacheOutput(DadaOutput)
 
-#4 SWARM2
+
+#4 LULU
     #4.0 process inputs
+        ConfirmInputsPresent("DadaOutput")
+
+        OtuTableForLulu<-CreateOtuTableForLulu(Input=DadaOutput$SeqDataTable, clustering = "ESV")
+
+        MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate, clustering="ESV")
+    
+    # 4.1 Run Module
+        LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType, clustering="ESV") # inputs are Otutable and matchlist created previously
+
+    # 4.2 cache Output
+        CacheOutput(LuluOutput1)
+
+
+#5 SWARM2
+    #5.0 process inputs
         #in general this will always be checking the previous modules output is present
         # then coverting it to required input formats for next module
         #if DadaOutput not loaded then read it in
             ConfirmInputsPresent("DadaOutput")
+            ConfirmInputsPresent("LuluOutput1")
+
         #convert ESV sequences to fasta with abundances for input into swarmv2    
-            CreateFastaWithAbundances(SeqDataTable=DadaOutput$SeqDataTable, clustering="ESV")
+            CreateFastaWithAbundances(SeqDataTable=LuluOutput1, clustering="curatedESV")
 
 
-    # 4.1 Run Module
+    # 5.1 Run Module
             SwarmOutput<-RunSwarm(differences=differences,  # input is FastaWithAbundances created previously
-                                    threads =4, 
-                                    TableToMergeTo=DadaOutput$SeqDataTable) 
+                                    threads =4,
+                                    TableToMergeTo=LuluOutput1)
         #inspect outputs
             #SwarmOutput
 
-    # 4.2 cache Output
+    # 5.2 cache Output
         CacheOutput(SwarmOutput)
     
 #5 LULU
     #5.0 process inputs
         ConfirmInputsPresent("DadaOutput")
+        ConfirmInputsPresent("LuluOutput1")
         ConfirmInputsPresent("SwarmOutput")
 
         OtuTableForLulu<-CreateOtuTableForLulu(Input=SwarmOutput, clustering="OTU")
@@ -86,18 +124,19 @@
         MatchListForLulu<-CreateMatchlistForLulu(Input=SwarmOutput ,MatchRate, clustering="OTU")
     
     # 5.1 Run Module
-        LuluOutput<-RunLULU(TableToMergeTo=SwarmOutput, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType, clustering="OTU") # inputs are Otutable and matchlist created previously
+        LuluOutput2<-RunLULU(TableToMergeTo=SwarmOutput, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType, clustering="OTU") # inputs are Otutable and matchlist created previously
 
     # 5.2 cache Output
-        CacheOutput(LuluOutput)
+        CacheOutput(LuluOutput2)
     
 
 
 # 6 IDTAXA
     #6.0 process inputs
         ConfirmInputsPresent("DadaOutput")
+        ConfirmInputsPresent("LuluOutput1")
         ConfirmInputsPresent("SwarmOutput")
-        ConfirmInputsPresent("LuluOutput")
+        ConfirmInputsPresent("LuluOutput2")
 
         #load reference library
             trainingSet<-GetTrainingSet(Type=Type, RefLibrary= RefLibrary)
@@ -112,10 +151,12 @@
     
 # 7 Creating final results from intermediate outputs
     #process inputs
-            ConfirmInputsPresent("DadaOutput")
-            ConfirmInputsPresent("SwarmOutput")
-            ConfirmInputsPresent("LuluOutput")
-            ConfirmInputsPresent("IdtaxaOutput")
+        ConfirmInputsPresent("CutadaptOutput")
+        ConfirmInputsPresent("DadaOutput")
+        ConfirmInputsPresent("LuluOutput1")
+        ConfirmInputsPresent("SwarmOutput")
+        ConfirmInputsPresent("LuluOutput2")
+        ConfirmInputsPresent("IdtaxaOutput")
 
     # 7.1 save sequences and clusters to results
         #SaveSequenceDataTableToDataBase(Input=IdtaxaOutput)
@@ -126,11 +167,15 @@
             ggsave(file.path(path,"Results",paste0(dataname,"_DadaPlots.pdf")), marrangeGrob(glist, nrow = 1, ncol = 1))
             
         #save dada and overall clustering tables
+            
+            write.csv( CutadaptOutput$PrimerCountSamplesList, file=file.path(path,"Results",paste0(dataname,"_PrimerCounts.csv")) )
+            write.csv( CutadaptOutput$PrimerCountCutadaptedSamplesList, file=file.path(path,"Results",paste0(dataname,"_PrimerCountsAfterCutadapt.csv")) )
+
             write.csv( DadaOutput$SecondaryOutputs$DadaTables, file=file.path(path,"Results",paste0(dataname,"_DadaTable.csv")) )
             
             write.csv( DadaOutput$SecondaryOutputs$SeqLengthDist, file=file.path(path,"Results",paste0(dataname,"_DadaSeqLengthDistribution.csv")) )
 
-            WriteClusteringTable(FinalOutput=LuluOutput, pipeline="DSL")
+            WriteClusteringTable(FinalOutput=LuluOutput2, pipeline="DLSL")
 
             if ( ! is.null(IdtaxaOutput) ) {
                 saveRDS(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
@@ -139,5 +184,5 @@
                 plot(IdtaxaOutput$IDTAXAplotdata, IdtaxaOutput$trainingSet)
                 dev.off()
             } else {
-                saveRDS(LuluOutput, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
+                saveRDS(LuluOutput2, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
             }

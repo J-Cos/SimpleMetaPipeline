@@ -10,7 +10,16 @@
         dataname="18s_test"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.
+        multithread=TRUE
+            #on windows set multithread=FALSE
 
+    # Cutadapt settings
+        UseCutadapt=TRUE
+            # either TRUE or FALSE: determines whether cutadapt is run
+        FWD ="ACCTGCGGARGGATCA"
+            ## CHANGE ME to your forward primer sequence
+        REV = "GAGATCCRTTGYTRAAAGTT",  
+            ## CHANGE ME...
 
     # DADA2 settings
         truncLen=c(240,240)
@@ -33,8 +42,6 @@
         pool="pseudo"
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)
-        multithread=TRUE
-            #on windows set multithread=FALSE
 
     # swarmv2 settings
         differences=1
@@ -73,5 +80,7 @@
 
 # run pipeline
     #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
-    source(file.path(path, "BioinformaticPipeline", "Pipeline", "DLSL_Pipeline.R"))
+    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DLSL_Pipeline.R"))
+    source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLSL_Pipeline.R"))
+
 

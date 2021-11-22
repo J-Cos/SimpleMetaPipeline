@@ -25,7 +25,8 @@
                     tidyverse,
                     lulu,
                     ggplot2,
-                    gridExtra)
+                    gridExtra,
+                    ShortRead)
 
     #Functions
         function_files<-list.files(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions"))
