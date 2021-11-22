@@ -39,6 +39,7 @@ R Packages - will be installed automatically in the pipeline
     library(lulu)
     library(ggplot2)
     library(gridExtra)
+    library(ShortRead)
 
 # 3) now you can start, create a new control script from the template and run the pipeline!
 
