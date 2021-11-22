@@ -38,8 +38,8 @@
         #none required 
     
     # 3.1 Run Module
-    CutadaptOutput<-RunCutadapt(FWD ="ACCTGCGGARGGATCA",  ## CHANGE ME to your forward primer sequence
-                REV = "GAGATCCRTTGYTRAAAGTT",  ## CHANGE ME...
+    CutadaptOutput<-RunCutadapt(FWD =FWD,  ## CHANGE ME to your forward primer sequence
+                REV = REV,  ## CHANGE ME...
                 multithread=TRUE,
                 dataname=dataname,
                 UseCutadapt=UseCutadapt)
