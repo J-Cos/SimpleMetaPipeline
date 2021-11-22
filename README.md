@@ -28,6 +28,7 @@ Finally copy this downloaded directory into the structure:
 installed software - you must install these yourself and ensure they are in usr/bin or usr/local/bin.
 - vsearch
 - swarm v2
+- cutadapt
     
 R Packages - will be installed automatically in the pipeline
 
