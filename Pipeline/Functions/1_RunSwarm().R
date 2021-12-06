@@ -20,32 +20,16 @@ RunSwarm<-function(differences, threads, TableToMergeTo){
             for (i in 1:(length(Allamplicons))) {
                 OTU<-data.frame(Sequence=unlist(strsplit(Allamplicons[i]," ")), OTU=paste0("OTU_", i))
                 #OTU$abundance<-as.numeric(sapply(strsplit(OTU$sequence, "_"), `[`, 2))
-                OTU$Sequence<-sapply(strsplit(OTU$Sequence, "_"), `[`, 1)
+                OTU$Sequence<-sapply(strsplit(as.character(OTU$Sequence), "_"), `[`, 1)
                 OTU$OTUrepresentativeSequence<-FALSE
-                OTU$OTUrepresentativeSequence[1]<-TRUE
+                OTU$OTUrepresentativeSequence[1]<-TRUE # for each of the esvs in a single otu the first is the representative seq (this is standard swarm output)
                 SeqDataList[[i]]<-OTU
             }
             SeqDataTable<-as.data.frame(data.table::rbindlist(SeqDataList))
 
 
-            #combine seq data table with ESVtable
-                #merge by sequence  this is all that is required when swarm performed on ESVs (dada only)
-                    SeqDataTable<-merge(TableToMergeTo, SeqDataTable, by="Sequence", all=TRUE)
-                
-                #but when performed on cESVs (dada then lulu1) (i.e. when some ESVs have been removed before swarm)
-                # we need to then back fill the correct otu assignments for each ESV depending on which cESV ESVs have been grouped into. 
-                    removedESVs<-which(is.na(SeqDataTable["OTU"]))
-                    if (length(removedESVs)!=0) {
-                        for (i in 1: length(removedESVs) ) {
-
-                            parentESVrow<-which(SeqDataTable$ESV == SeqDataTable[removedESVs[i],]$curatedESV) 
-
-                            SeqDataTable[removedESVs[i],]["OTU"]<- SeqDataTable [ parentESVrow ,]$OTU
-
-                            SeqDataTable[removedESVs[i],]["OTUrepresentativeSequence"]<- FALSE
-
-                        }
-                    }
+            SeqDataTable<-MergeClusteringResultsintoDataTable(TableToMergeTo=TableToMergeTo, 
+                                                    OTULabeledSeqs=SeqDataTable)
 
             return(SeqDataTable)
 }

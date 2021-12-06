@@ -43,10 +43,15 @@
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)
 
-    # swarmv2 settings
+    # cluster settings   
+        linkage = "complete"
+             #either complete (vsearch) or single (swarm)
         differences=1
             #number of base differences at which swarm clustering will be performed (1=default)                               
-            
+        SimilarityThreshold = 0.97
+            #%age similarity at which to cluster sequences as a decimal
+        threads=4
+            # number of threads available       
 
     # lulu settings
         MatchRate=90 #as a %, default 84
@@ -82,5 +87,6 @@
 # run pipeline
     #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
     #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DLSL_Pipeline.R"))
-    source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLSL_Pipeline.R"))
+    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLSL_Pipeline.R"))
+    source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLCL_Pipeline.R"))
 
