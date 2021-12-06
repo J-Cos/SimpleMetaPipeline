@@ -1,6 +1,19 @@
 #settings
+
+    #cluster settings
+        #on HPC?
+        HPC<-FALSE
+        if (HPC==TRUE)   {setwd("/rds/general/user/jcw120/home/BioinformaticPipeline_Env")} #necessary as it appears different job classes have different WDs.
+
+        #CRAN mirror
+            r = getOption("repos")
+            r["CRAN"] = "http://cran.us.r-project.org"
+            options(repos = r)
+
     # general settings
-        path <-"../../BioinformaticPipeline_Env"
+        #path <-"../BioinformaticPipeline_Env" # HPC
+        path <-"../../BioinformaticPipeline_Env" #for personal machine
+
             # this should be the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
                 # FASTQs - fill this file with your unmerged multiplexed raw FASTQ files

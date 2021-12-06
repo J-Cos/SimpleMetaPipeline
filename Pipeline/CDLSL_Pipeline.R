@@ -82,7 +82,7 @@
 
         OtuTableForLulu<-CreateOtuTableForLulu(Input=DadaOutput$SeqDataTable, clustering = "ESV")
 
-        MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate, clustering="ESV")
+        MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate, clustering="ESV", HPC)
     
     # 4.1 Run Module
         LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType, clustering="ESV") # inputs are Otutable and matchlist created previously
@@ -106,7 +106,7 @@
     # 5.1 Run Module
             SwarmOutput<-RunSwarm(differences=differences,  # input is FastaWithAbundances created previously
                                     threads =4,
-                                    TableToMergeTo=LuluOutput1)
+                                    TableToMergeTo=LuluOutput1, HPC=HPC)
         #inspect outputs
             #SwarmOutput
 
@@ -121,7 +121,7 @@
 
         OtuTableForLulu<-CreateOtuTableForLulu(Input=SwarmOutput, clustering="OTU")
 
-        MatchListForLulu<-CreateMatchlistForLulu(Input=SwarmOutput ,MatchRate, clustering="OTU")
+        MatchListForLulu<-CreateMatchlistForLulu(Input=SwarmOutput ,MatchRate, clustering="OTU", HPC)
     
     # 5.1 Run Module
         LuluOutput2<-RunLULU(TableToMergeTo=SwarmOutput, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType, clustering="OTU") # inputs are Otutable and matchlist created previously
@@ -184,5 +184,5 @@
                 plot(IdtaxaOutput$IDTAXAplotdata, IdtaxaOutput$trainingSet)
                 dev.off()
             } else {
-                saveRDS(LuluOutput2, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
+                saveRDS((LuluOutput2), file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
             }

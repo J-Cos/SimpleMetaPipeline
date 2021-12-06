@@ -2,7 +2,7 @@
 
     #cluster settings
         #on HPC?
-        HPC<-FALSE
+        HPC<-TRUE
         if (HPC==TRUE)   {setwd("/rds/general/user/jcw120/home/BioinformaticPipeline_Env")} #necessary as it appears different job classes have different WDs.
 
         #CRAN mirror
@@ -10,9 +10,12 @@
             r["CRAN"] = "http://cran.us.r-project.org"
             options(repos = r)
 
+
+
     # general settings
-        #path <-"../BioinformaticPipeline_Env" # HPC
-        path <-"../../BioinformaticPipeline_Env" #for personal machine
+        path <-"../BioinformaticPipeline_Env" # HPC
+        #path <-"../../BioinformaticPipeline_Env" #for personal machine
+
 
             # this should be the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
@@ -20,7 +23,7 @@
                 # ReferenceLibraries - fill this file with your taxonomic reference library formatted either as i) ... or ii) ...
                 # IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
                 # Results - this is where final results will be saved
-        dataname="16s_test"
+        dataname="PNGFullTest_16s"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.
         multithread=TRUE
@@ -31,7 +34,7 @@
             # either TRUE or FALSE: determines whether cutadapt is run
         FWD ="ACCTGCGGARGGATCA"
             ## CHANGE ME to your forward primer sequence
-        REV = "GAGATCCRTTGYTRAAAGTT",  
+        REV = "GAGATCCRTTGYTRAAAGTT"
             ## CHANGE ME...
 
     # DADA2 settings
@@ -64,7 +67,7 @@
         SimilarityThreshold = 0.97
             #%age similarity at which to cluster sequences as a decimal
         threads=4
-            # number of threads available                  
+            # number of threads available          
 
     # lulu settings
         MatchRate=84 #as a %, default 84
@@ -83,8 +86,8 @@
         #  designated errors. This option was introduced to make it
         #  possible to account for non-sufficiently clustered
         #  intraspecific variation, but is not generally recommended, as
-        #  it will also increase the potential of cluster
-        #  well-separated, but co-occuring, sequence similar species.
+        #  it will also increase the potential of clustering
+        #  well-separated, but co-occuring, sequence similar species. 
 
     # IDTAXA settings
         Type ="No"  

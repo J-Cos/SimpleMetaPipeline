@@ -1,5 +1,7 @@
-RunSwarm<-function(differences, threads, TableToMergeTo){         
+RunSwarm<-function(differences, threads, TableToMergeTo, HPC){         
          
+         #enabling sudo on desktop and non-sudo on cluster
+         if (HPC==FALSE) {
             system(command=paste0("sudo swarm", 
                                             " -d ", differences,
                                             " -f ", 
@@ -10,6 +12,18 @@ RunSwarm<-function(differences, threads, TableToMergeTo){
                                             " -o ", file.path(path, "IntermediateOutputs", paste0(dataname, "_SwarmAllAmplicons.txt")), 
                                             " -i ", file.path(path, "IntermediateOutputs", paste0(dataname, "_SwarmInternalStructures.txt"))
                                             ))
+         } else if (HPC==TRUE) {
+                      system(command=paste0("swarm", 
+                                            " -d ", differences,
+                                            " -f ", 
+                                            " -t ", threads, 
+                                            " ", file.path(path, "IntermediateOutputs", paste0(dataname, "_ESVSequencesWithAbundances.fasta")),
+                                            " -s ", file.path(path, "IntermediateOutputs", paste0(dataname, "_SwarmStats.csv")),
+                                            " -w ", file.path(path, "IntermediateOutputs", paste0(dataname, "SwarmSequences.fasta")),
+                                            " -o ", file.path(path, "IntermediateOutputs", paste0(dataname, "_SwarmAllAmplicons.txt")), 
+                                            " -i ", file.path(path, "IntermediateOutputs", paste0(dataname, "_SwarmInternalStructures.txt"))
+                                            ))
+         }
 
             # read in data created by swarm
             Allamplicons <- readLines(file.path(path, "IntermediateOutputs", paste0(dataname, "_SwarmAllAmplicons.txt")))
