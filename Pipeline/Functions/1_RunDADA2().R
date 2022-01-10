@@ -1,11 +1,3 @@
-#dada2 wrapped function now optimised for big datasets in accordance with http://benjjneb.github.io/dada2/bigdata.html
-
-#currently assumes all fastqs come from a single sequencing run, and so can have a single learnt error rate applied. it
-#doesn't matter if there were other samples included in the sequencing run as 1e8 bases is sufficient to learn error rates, 
-# and denoising can take place by sample using this error rate. If multiple sequcing runs need to be combined then this function will need to have a
-# multipleruns argument added which will run the steps till denoising on each sequecing run independently and then merge them for chimera removal and production of
-#summary outputs, a well as all downstream modules. Further guidance available here: http://benjjneb.github.io/dada2/bigdata.html
-
         RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), 
                             truncQ=2, DesiredSequenceLengthRange=NULL, dataname=NULL, multithread, pool,
                             UseCutadapt=FALSE) {
@@ -25,9 +17,7 @@
 
             # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
             SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1)
-            names(fnFs)<-SampleNames
-            names(fnRs)<-SampleNames
-
+            
             # Create paths for filtered outputs
             filtFs<-createOutputFilePaths(suffix="_F_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
             filtRs<-createOutputFilePaths(suffix="_R_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
@@ -36,31 +26,18 @@
             out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=truncLen,
                                 trimLeft=trimLeft, maxN=maxN, maxEE=maxEE, truncQ=truncQ, 
                                 rm.phix=TRUE, compress=TRUE, multithread=multithread, verbose=TRUE) 
-            errF <- learnErrors(filtFs, multithread=multithread, nbases=1e8, randomize=TRUE)
-            errR <- learnErrors(filtRs, multithread=multithread, nbases=1e8, randomize=TRUE)
+            errF <- learnErrors(filtFs, multithread=multithread)
+            errR <- learnErrors(filtRs, multithread=multithread)
 
+            #denoise
+            dadaFs <- dada(filtFs, err=errF, multithread=multithread,pool=pool)
+            dadaRs <- dada(filtRs, err=errR, multithread=multithread,pool=pool)
 
-            # Infer sequence variants
-            dds <- vector("list", length(SampleNames))
-            names(dds) <- SampleNames
-            ddsFs <- dds
-            ddsRs <- dds
-
-            for(sam in SampleNames) {
-                cat("Processing:", sam, "\n")
-                derepFs <- derepFastq(filtFs[[sam]])
-                derepRs <- derepFastq(filtRs[[sam]])
-
-                ddsFs[[sam]] <- dada(derepFs, err=errF, multithread=TRUE)
-                ddsRs[[sam]] <- dada(derepRs, err=errR, multithread=TRUE)
-
-                #merge pairs
-                    dds[[sam]] <- mergePairs(ddsFs[[sam]], derepFs, ddsRs[[sam]], derepRs, verbose=TRUE)
-
-            }
+            #merge
+            mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE)
 
             #make sequence table
-            seqtab <- makeSequenceTable(dds)
+            seqtab <- makeSequenceTable(mergers)
 
             #cut to specific length if needed
             if (!is.null(DesiredSequenceLengthRange)) {
@@ -75,7 +52,7 @@
                                                 multithread=multithread, verbose=TRUE)
 
             #create read tracking table 
-            track <- cbind(out, sapply(ddsFs, getN), sapply(ddsRs, getN), sapply(dds, getN), rowSums(seqtab.nochim)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
+            track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
             colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
             rownames(track) <- SampleNames
             DadaTables<-list(track)
