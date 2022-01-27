@@ -1,62 +1,57 @@
 # you can specify what clustering level you want to assign to
 
+#expects classifier trained with seq names in following format, number of ranks can vary: "Root; Arthropoda; Arachnida; Araneae; Uloboridae; Zosis; geniculata" 
 
-RunIdtaxa<-function(Type, trainingSet, TableToMergeTo=LuluOutput, SeqsToAssign=SeqsToAssign, threshold=0) {
-    if (Type == "Load") {
-            #SeqsToAssign should modify which seqs are selected here
+
+RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold) {
+    if (Type == "Assign") {
+        #SeqsToAssign should modify which seqs are selected here
             if (SeqsToAssign=="ESVs"){
-                dna <- Biostrings::DNAStringSet(LuluOutput[,2])
+                dna <- Biostrings::DNAStringSet(TableToMergeTo[,2])
+                names(dna)<-TableToMergeTo$ESV
             } else if (SeqsToAssign == "OTUs"){
-                dna <- Biostrings::DNAStringSet(LuluOutput[LuluOutput$OTUrepresentativeSequence==TRUE,2])
+                dna <- Biostrings::DNAStringSet(TableToMergeTo[TableToMergeTo$OTUrepresentativeSequence==TRUE,2])
+                names(dna)<-TableToMergeTo$OTU
+
             } else if (SeqsToAssign== "cOTUs") {
-                dna <- Biostrings::DNAStringSet(LuluOutput[LuluOutput$CuratedOTURepresentativeSequence==TRUE,2])
+                dna <- Biostrings::DNAStringSet(TableToMergeTo[TableToMergeTo$CuratedOTURepresentativeSequence==TRUE,2])
+                names(dna)<-TableToMergeTo$curatedOTU
+
             } else {print ("RunIdTaxa does not recognise SeqsToAssign argument") }
 
+        #load the specified trainingset
+        load(file.path(path, "Data", "Classifiers", trainingSet))
 
+        #classify
             ids <- IdTaxa(dna,
                         trainingSet,
                         type="extended",
-                        strand="top",
+                        strand="both",
                         threshold=threshold,
                         processors=4)
 
-
-            #convert output to neat dataframe dependent on whether trainingset includes rank information (derived from a taxid file)
-            # or not, if it doesn't then currently rank assignments are assumed (not ideal).
-            
-            desiredRanks<-c("domain", "kingdom", "phylum", "class", "order", "family", "genus")
-
-            if (is.null(trainingSet$rank)) {
-
-                IDtaxa_df<-bind_rows(lapply(ids,unlist), .id = "ESV")
-                IDtaxa_df<-cbind(IDtaxa_df$ESV, select(IDtaxa_df, starts_with( "taxon")), select(IDtaxa_df, starts_with( "confidence")))
-                names(IDtaxa_df)[1]<-"ESV"
-                names(IDtaxa_df)[2:  (length(desiredRanks)+1)]<-desiredRanks
-                names(IDtaxa_df)[ (length(desiredRanks)+2) : (length(desiredRanks)*2+1) ]<-paste0("confidence ", desiredRanks)
-                IDtaxa_df<-IDtaxa_df[ 1: (length(desiredRanks)*2+1) ]
-
-            } else {
-                
-                IDtaxa_df<-data.frame(matrix(NA, ncol=2*length(desiredRanks), nrow=0))
-                names(IDtaxa_df)<-c(desiredRanks, paste0(desiredRanks, "_confidence"))
-                
-                for (i in 1: length(ids)) {
-                    selection<-ids[[i]]$rank %in% desiredRanks
-                    insertions<-desiredRanks %in% ids[[i]]$rank
-                    IDtaxa_df[i,1:length(desiredRanks)][insertions]<-ids[[i]]$taxon[selection]
-                    IDtaxa_df[i, (length(desiredRanks)+1) : (length(desiredRanks)*2) ] [insertions] <-ids[[i]]$confidence[selection]
+           ExtractFromIds<-function(list_item, category){
+                ListItemLength<-length(list_item[[category]])
+                if (ListItemLength < Nranks) {
+                   list_item[[category]][(ListItemLength+1):Nranks] <-list_item[[category]][ListItemLength]
                 }
-                IDtaxa_df$ESV<-rownames(IDtaxa_df)
-
+                return(list_item[[category]])
             }
 
-            #merge with seq data table
-                TableToMergeTo$ESV<-rownames(TableToMergeTo)
-                SeqDataTable<-merge(TableToMergeTo, IDtaxa_df, by= "ESV", all=TRUE)
-                SeqDataTable$ESV<-paste0("ESV_", SeqDataTable$ESV)
+            Nranks<-max( unlist ( lapply ( lapply( ids, '[[', 1), length)))
+            TaxonVecList<-lapply(ids, ExtractFromIds, category="taxon")
+            TaxonDf<-plyr::ldply(TaxonVecList, rbind)
 
+            ConfVecList<-lapply(ids, ExtractFromIds, category="confidence")
+            ConfDf<-plyr::ldply(ConfVecList, rbind)
 
-            return(list(SeqDataTable=SeqDataTable, IDTAXAplotdata=(ids), trainingSet=trainingSet))
+            IdtaxaDf<-merge(TaxonDf, ConfDf, ".id")
+            names(IdtaxaDf)<-c("ESV", paste0("Rank_", 1:Nranks), paste0("Rank_", 1:Nranks, "_Confidence"))
+
+        #merge with seq data table
+            SeqDataTable<-merge(TableToMergeTo,IdtaxaDf, by= "ESV", all=TRUE)
+            
+            return(list(SeqDataTable=SeqDataTable, PlotData=ids))
     } else {
         print("No assignment performed")
         return(NULL)

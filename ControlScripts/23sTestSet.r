@@ -30,7 +30,7 @@
             # either TRUE or FALSE: determines whether cutadapt is run
         FWD ="ACCTGCGGARGGATCA"
             ## CHANGE ME to your forward primer sequence
-        REV = "GAGATCCRTTGYTRAAAGTT",  
+        REV = "GAGATCCRTTGYTRAAAGTT"
             ## CHANGE ME...
 
 
@@ -87,19 +87,17 @@
         #  well-separated, but co-occuring, sequence similar species.
 
     # IDTAXA settings
-        Type ="No"  
+        Type ="Assign"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
-        RefLibrary= "microgreen_trainingSet.Rdata" 
+        trainingSet= "GTDB_r202-mod_April2021.RData" 
+        #trainingSet="SILVA_SSU_r138_2019.RData"
             #ref library to load if loading
-        SeqsToAssign ="cOTUs"
+        SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
-        threshold=60
+        threshold=30 
             # %age confidence of assignment required to record assignment
+            #30=low confidence, 40=moderate, 50 = high, 60= very high
 
 # run pipeline
-    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DSLI_SQL_Pipeline.R"))
-    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "DLSL_Pipeline.R"))
-    #source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLSL_Pipeline.R"))
-    source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLCL_Pipeline.R"))
-
+    source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLCLA_Pipeline.R"))
 
