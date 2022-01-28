@@ -13,14 +13,17 @@
     dir.create((file.path("BioinformaticPipeline_Env", "Data")))
     dir.create((file.path("BioinformaticPipeline_Env", "IntermediateOutputs")))
     dir.create((file.path("BioinformaticPipeline_Env", "Results")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Data", "BlastDBs")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Classifiers")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Raw")))
 
 This creates a directory structure as follows:
 - FASTQs - fill this file with your unmerged multiplexed raw FASTQ files
-- Data - fill this file with your taxonomic reference library trainingsets and metadata
+- Data - fill this file with your taxonomic reference library trainingsets and metadata (raw fastas in "Raw", IDtaxa classifiers in "Classifiers", and BlastDbs in "BlastDBs")
 - IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
 - Results - this is where final results will be saved
 
-Finally copy this downloaded directory into the structure:
+Finally copy and paste this downloaded directory into the structure:
 - BioinformaticPipeline - get this from github and then create your own control file from the template - no need to modify anything else
 
 
