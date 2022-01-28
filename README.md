@@ -44,3 +44,10 @@ R Packages - will be installed automatically in the pipeline
 # 3) now you can start, create a new control script from the template and run the pipeline!
 
 Remember you will need to find the optimal parameters first - either do this algorithmically or visually for instance in QIIME2.
+
+
+# Appendix 1
+## HPC Instructions
+Linux and Mac OS open a Terminal on your desktop and type  ssh -XY username@login.hpc.imperial.ac.uk, substituting in your own college username, and entering in its password when prompted You'll need to be on the College network, or connected to the VPN.
+
+Map drive with "IC" as domain
