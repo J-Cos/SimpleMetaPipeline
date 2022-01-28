@@ -25,7 +25,7 @@ RunVSEARCH<-function(SimilarityThreshold=0.97, clustering="curatedESV", TableToM
     vsearchclusters<-as.data.frame(read.table(file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchdata"))))
     vsearchclusters<-vsearchclusters[which(vsearchclusters$V1!="C"),c(1,2,9)]
 
-    OTULabeledSeqs<-data.frame(OTU=paste0("OTU_",vsearchclusters$V2), Sequence=sapply(strsplit(vsearchclusters$V9, "_"), '[',1),
+    OTULabeledSeqs<-data.frame(OTU=paste0("OTU_",vsearchclusters$V2), Sequence=vsearchclusters$V9,
                                 OTUrepresentativeSequence= (vsearchclusters$V1=="S") )
 
     SeqDataTable<-MergeClusteringResultsintoDataTable(TableToMergeTo=TableToMergeTo, 
