@@ -99,43 +99,6 @@
 
         return(list(trainingSet, probSeqs))
     }
-    CreateTaxaDfFromBiocodeFasta<-function(path, BiocodeFasta) {
-        
-        #readfasta as strings
-        BiocodeFasta <- readLines(file.path(path,BiocodeFasta))
-
-        # if odd number of rows then the last is a fragement and should be removed
-        if (length(BiocodeFasta)%%2==1) {
-            BiocodeFasta<-BiocodeFasta[1:length(BiocodeFasta)-1]
-        }
-
-
-        BiocodeFastaNames<-BiocodeFasta[seq(from=1, to=length(BiocodeFasta), by=2)]
-        
-        Tax_df<-as.data.frame( matrix(NA, ncol =8 , nrow = length(BiocodeFastaNames)) )
-        names(Tax_df)<-c(    "NumID", "ID", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-        
-        for (i in 1:length(BiocodeFastaNames)) {
-
-            string<-sub('.', '', BiocodeFastaNames[i])
-            string<-strsplit(string, split= "\\|")
-            string<-unlist(string)
-
-            Tax_df$NumID[i]<-string[[3]]
-            Tax_df$ID[i]<-string[1]
-
-            x<-unlist(strsplit(string[2], split=","))
-            x<-unlist(lapply(FUN=strsplit, x, ":", 2))
-            ranks<-rep(NA, 6)
-            for (j in 1: length(ranks)) {
-                ranks[j]<-x[ (j*2) ]
-            }
-
-            Tax_df[i,3:8]<-ranks
-        }
-
-        return(Tax_df)
-    }
     ReformatMidoriTaxa <- function(list_item) {
         string<-lapply(strsplit(list_item, split= "\t"), '[', 2)
         ranks<-strsplit(unlist(string), split= ";")
@@ -145,34 +108,39 @@
             ranks_split_nonum[[i]]<-ranks_split[[i]][-length(ranks_split[[i]])]
             ranks_split_nonum[[i]]<-paste(ranks_split_nonum[[i]], collapse="_")
         }
-        new_list_item<-paste(unlist(ranks_split_nonum), collapse="; ")
+        new_list_item<-paste(unlist(ranks_split_nonum), collapse=";")
         #capitalise root!
         new_list_item<-sub("^.", "R", new_list_item)
 
         return(new_list_item)
     }
-
+    ReformatBiocodeTaxa <- function(list_item) {
+        taxstring<-lapply(strsplit(list_item, split= "\\|"), '[', 2)
+        #remove semicolons from names so they don't interfere downstream (replace with underscore)
+        string_no_semicolons<-gsub('[;]', '_', taxstring)
+        ranks<-strsplit(unlist(string_no_semicolons), split= ",")
+        ranks_split<-lapply(strsplit(unlist(ranks), split= ": "), '[',2)
+        if (length(ranks_split)==6) { #6 because the 6th rank of biocode is the species
+            ranks_split[length(ranks_split)]<-paste0( ranks_split[(length(ranks_split)-1)]," ", ranks_split[length(ranks_split)])
+        }
+        list_item_noroot<-paste0(unlist(ranks_split), collapse=";")
+        new_list_item<-paste0("Root;Eukaryota;",list_item_noroot)
+        return(new_list_item)
+    }
 
 
 #4. format inputs
     #biocode
         Bseqs <- readDNAStringSet(file.path(path, "Data", "Raw", BiocodeFasta) )
-
-        #taxonomy formatting
-            Taxa_df<-CreateTaxaDfFromBiocodeFasta(path=file.path(path, "Data", "Raw"), BiocodeFasta=BiocodeFasta)
-            Taxonomy_df<-Taxa_df[,-(1:2)]
-            df_args <- c(Taxonomy_df, sep=";")
-            Taxonomy_noroot<-do.call(paste, df_args)
-            Taxonomy<- paste0("Root; Eukaryota:",Taxonomy_noroot)
-            names(Bseqs)<-Taxonomy
-                print("Biocode seqs prepared")
+        Btax<-as.list(names(Bseqs))
+        names(Bseqs)<-unlist(lapply(Btax, ReformatBiocodeTaxa))
+            print("Biocode seqs prepared")
 
     #midori
         Mseqs <- Biostrings::readDNAStringSet(file.path(path, "Data", "Raw", MidoriFasta))
-        
-        #taxonomy formatting
-            tax<-as.list(names(Mseqs))
-            names(Mseqs)<-unlist(lapply(tax, ReformatMidoriTaxa))
+            Mseqs <- Mseqs[sample(1:length(Mseqs), length(Bseqs)*10)] #line for testing purposes
+        Mtax<-as.list(names(Mseqs))
+        names(Mseqs)<-unlist(lapply(Mtax, ReformatMidoriTaxa))
                 print("Midori names reformatted")
 
     #combine midori and biocode
@@ -186,7 +154,10 @@
         seqs <- OrientNucleotides(seqs)
             print("nucleotides reoriented")
 
-    
+# Checkpoint - save seqs to output for inspection
+    writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_combinedSeqs.fasta")), format="fasta", width=10000)
+
+
 #5. train classifier 
     IdtaxaClassifierOutputs<-TrainIdtaxaClassifier(seqs=seqs, maxGroupSize=10, maxIterations=3)
 
