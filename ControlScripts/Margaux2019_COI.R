@@ -2,7 +2,7 @@
 
     #cluster settings
         #on HPC?
-        HPC<-FALSE
+        HPC<-TRUE
         if (HPC==TRUE)   {setwd("/rds/general/user/jcw120/home/BioinformaticPipeline_Env")} #necessary as it appears different job classes have different WDs.
 
         #CRAN mirror
@@ -11,15 +11,15 @@
             options(repos = r)
 
     # general settings
-        #path <-"../BioinformaticPipeline_Env" # HPC
-        path <-"../../BioinformaticPipeline_Env" #for personal machine
+        path <-"../BioinformaticPipeline_Env" # HPC
+        #path <-"/Users/margauxsteyaert/Documents/PhD_Oxford/Data/ARMS/Pipeline_final/BioinformaticPipelineEnv/" #for personal machine
             # this should be the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
                 # FASTQs - fill this file with your unmerged multiplexed raw FASTQ files
                 # ReferenceLibraries - fill this file with your taxonomic reference library formatted either as i) ... or ii) ...
                 # IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
                 # Results - this is where final results will be saved
-        dataname="COI_test"
+        dataname="COI_2019_Margaux"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.
         multithread=TRUE
@@ -44,7 +44,7 @@
             #  After truncation, reads with higher than ‘maxEE’ "expected errors"  
             # will be discarded. Expected errors are calculated from the nominal definition 
             # of the quality score: EE = sum(10^(-Q/10))
-        truncQ=0
+        truncQ=2
             # Truncate reads at the first instance of a quality score less than or equal to ‘truncQ’.
         DesiredSequenceLengthRange=NULL
             #sequence length range to keep enter as e.g. 360:270, if NULL all sequence lengths are kept. 
@@ -63,7 +63,7 @@
             #number of base differences at which swarm clustering will be performed (1=default)                               
         SimilarityThreshold = 0.97
             #%age similarity at which to cluster sequences as a decimal
-        threads=4
+        threads=32
             # number of threads available  
 
     # lulu settings
@@ -89,7 +89,7 @@
     # IDTAXA settings
         Type ="Assign"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
-        trainingSet= "ARMS_classifier_mediumtest_Final_IdtaxaClassifier.Rdata" 
+        trainingSet= "Biocode_ER_IdtaxaClassifier.Rdata" 
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"

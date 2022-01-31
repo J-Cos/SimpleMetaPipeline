@@ -26,7 +26,7 @@
             #on windows set multithread=FALSE
 
     # Cutadapt settings
-        UseCutadapt=TRUE
+        UseCutadapt=FALSE
             # either TRUE or FALSE: determines whether cutadapt is run
         FWD ="ACCTGCGGARGGATCA"
             ## CHANGE ME to your forward primer sequence
@@ -89,8 +89,7 @@
     # IDTAXA settings
         Type ="Assign"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
-        trainingSet= "GTDB_r202-mod_April2021.RData" 
-        #trainingSet="SILVA_SSU_r138_2019.RData"
+        trainingSet= "microgreen_trainingSet.Rdata"
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
