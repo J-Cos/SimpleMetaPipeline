@@ -67,8 +67,8 @@
                                     taxonomy=names(seqs)[!remove],
                                     verbose=TRUE)
             
-            save(trainingSet, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_IdtaxaClassifier_Iteration:", i, ".Rdata")))
-
+            #something prevents this line working on the HPC - it does work locally
+            #save(trainingSet, file=file.path(parent.frame()$path, "Data", "Classifiers", paste0(parent.frame()$libraryname, "_IdtaxaClassifier_Iteration:", i, ".Rdata")))
                                     
             # look for problem sequences
             probSeqs <- trainingSet$problemSequences$Index
@@ -138,7 +138,7 @@
 
     #midori
         Mseqs <- Biostrings::readDNAStringSet(file.path(path, "Data", "Raw", MidoriFasta))
-            Mseqs <- Mseqs[sample(1:length(Mseqs), length(Bseqs)*10)] #line for testing purposes
+            #Mseqs <- Mseqs[sample(1:length(Mseqs), length(Bseqs))] #line for testing purposes
         Mtax<-as.list(names(Mseqs))
         names(Mseqs)<-unlist(lapply(Mtax, ReformatMidoriTaxa))
                 print("Midori names reformatted")
