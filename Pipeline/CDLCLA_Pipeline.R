@@ -146,9 +146,7 @@
 
     # 6.1 Run Module
             IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold)
-        #inspect outputs
-            #write.csv(IdtaxaOutput, "GTDBAssignment30Test.csv")
-
+            
     # 6.2 cache Output
         CacheOutput(IdtaxaOutput)
     
@@ -182,10 +180,13 @@
 
             if ( ! is.null(IdtaxaOutput) ) {
                 saveRDS(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
-
+                write.csv(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.csv")))
+                
                 pdf(file = file.path(path, "Results", paste0(dataname, "_TaxaAssignment.pdf")))   # The directory you want to save the file in
                 plot(IdtaxaOutput$PlotData)
                 dev.off()
             } else {
                 saveRDS((LuluOutput2), file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
+                write.csv(LuluOutput2, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.csv")))
+
             }
