@@ -33,7 +33,7 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
            ExtractFromIds<-function(list_item, category){
                 ListItemLength<-length(list_item[[category]])
                 if (ListItemLength < Nranks) {
-                   list_item[[category]][(ListItemLength+1):Nranks] <-"Unclassified"
+                   list_item[[category]][(ListItemLength+1):Nranks] <-list_item[[category]][(ListItemLength)] #ensures that looking at a low unclassified rank you can see what groups it is in
                 }
                 return(list_item[[category]])
             }
