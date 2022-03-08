@@ -5,9 +5,9 @@
     #example
         #example<-SeqDataTable2Phyloseq(SeqDataTablefile="23s_test_SeqDataTable.RDS", clustering="cOTU", Metadata=NULL)
 
-SeqDataTable2Phyloseq<-function(SeqDataTablefile, clustering, Metadata=NULL){
+SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL){
 
-    SeqDataTable<-readRDS(file.path(path, "Results", SeqDataTablefile))
+    SeqDataTable<-readRDS(SeqDataTablePath)
 
     # very explicit column math to ensure 
         #1) that this function works with variable numbers of samples
@@ -25,11 +25,20 @@ SeqDataTable2Phyloseq<-function(SeqDataTablefile, clustering, Metadata=NULL){
         if (clustering == "ESV") {
 
             #otumat
-            otumat<-SeqDataTable %>% 
-                group_by( ESV ) %>% 
-                summarise_if(is.numeric,sum) %>% 
-                column_to_rownames("ESV")%>% 
-                as.matrix() 
+                otumat<-SeqDataTable %>% 
+                    group_by( ESV ) %>% 
+                    summarise_if(is.numeric,sum) %>% 
+                    column_to_rownames("ESV")%>% 
+                    as.matrix() 
+
+                reformatSampleNames<-function(list_item) {
+                    string<-unlist(strsplit(list_item, "_"))
+                    newstring<-string[c(-1, (-length(string)+1):-length(string))]
+                    newstring<-paste(newstring, collapse="_")
+                    return(newstring)
+                }
+                colnames(otumat)<-lapply(colnames(otumat), reformatSampleNames)
+
 
             if(firstTaxCol!=lastConfCol) {
                 #taxmat
@@ -41,10 +50,10 @@ SeqDataTable2Phyloseq<-function(SeqDataTablefile, clustering, Metadata=NULL){
             }
 
             #refseqs
-            refseqs_df<-SeqDataTable[,c("sequence","ESV")] %>%
+            refseqs_df<-SeqDataTable[,c("Sequence","ESV")] %>%
                 arrange(, ESV) %>%
                 column_to_rownames("ESV")
-            refseqs <- DNAStringSet(refseqs_df$sequence)
+            refseqs <- DNAStringSet(refseqs_df$Sequence)
             names(refseqs)<-rownames(refseqs_df)
 
 
