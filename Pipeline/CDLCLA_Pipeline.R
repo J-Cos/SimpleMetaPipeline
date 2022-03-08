@@ -78,16 +78,16 @@
         CacheOutput(DadaOutput)
 
 
-#4 LULU
+#4 LULU1
     #4.0 process inputs
         ConfirmInputsPresent("DadaOutput")
 
         OtuTableForLulu<-CreateOtuTableForLulu(Input=DadaOutput$SeqDataTable, clustering = "ESV")
 
-        MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate, clustering="ESV", HPC=HPC)
+        MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate1, clustering="ESV", HPC=HPC)
     
     # 4.1 Run Module
-        LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType, clustering="ESV") # inputs are Otutable and matchlist created previously
+        LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate1, MinRelativeCo=MinRelativeCo1, RatioType=RatioType1, clustering="ESV") # inputs are Otutable and matchlist created previously
 
     # 4.2 cache Output
         CacheOutput(LuluOutput1)
@@ -117,7 +117,7 @@
     # 5.2 cache Output
         CacheOutput(ClusterOutput)
     
-#5 LULU
+#5 LULU2
     #5.0 process inputs
         ConfirmInputsPresent("DadaOutput")
         ConfirmInputsPresent("LuluOutput1")
@@ -125,10 +125,10 @@
 
         OtuTableForLulu<-CreateOtuTableForLulu(Input=ClusterOutput, clustering="OTU")
 
-        MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate, clustering="OTU", HPC=HPC)
+        MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate2, clustering="OTU", HPC=HPC)
     
     # 5.1 Run Module
-        LuluOutput2<-RunLULU(TableToMergeTo=ClusterOutput, MatchRate=MatchRate, MinRelativeCo=MinRelativeCo, RatioType=RatioType, clustering="OTU") # inputs are Otutable and matchlist created previously
+        LuluOutput2<-RunLULU(TableToMergeTo=ClusterOutput, MatchRate=MatchRate2, MinRelativeCo=MinRelativeCo2, RatioType=RatioType2, clustering="OTU") # inputs are Otutable and matchlist created previously
 
     # 5.2 cache Output
         CacheOutput(LuluOutput2)

@@ -19,7 +19,7 @@
                 # ReferenceLibraries - fill this file with your taxonomic reference library formatted either as i) ... or ii) ...
                 # IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
                 # Results - this is where final results will be saved
-        dataname="COI_2019_Margaux"
+        dataname="Margaux2019_COI"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.
         multithread=TRUE
@@ -55,6 +55,26 @@
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)
 
+    # lulu settings1
+        MatchRate1=84 #as a %, default 84
+            # % matching bases to consider clustering OTUs if co-occurence seen. 
+        MinRelativeCo1 = 0.95 #as a decimal, default 0.95
+        #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
+         # lower rate of occurrence of the potential error explained by
+         # co-occurrence with the potential parent for considering error
+         # state.
+        RatioType1 = "min" # options: "min" and "avg"
+        #sets whether a potential error must have lower
+        #  abundance than the parent in all samples ‘min’ (default), or
+        #  if an error just needs to have lower abundance on average
+        #  ‘avg’. Choosing lower abundance on average over globally
+        #  lower abundance will greatly increase the number of
+        #  designated errors. This option was introduced to make it
+        #  possible to account for non-sufficiently clustered
+        #  intraspecific variation, but is not generally recommended, as
+        #  it will also increase the potential of cluster
+        #  well-separated, but co-occuring, sequence similar species.
+
 
     # cluster settings   
         linkage = "complete"
@@ -66,15 +86,15 @@
         threads=32
             # number of threads available  
 
-    # lulu settings
-        MatchRate=84 #as a %, default 84
+    # lulu settings2
+        MatchRate2=84 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
-        MinRelativeCo = 0.95 #as a decimal, default 0.95
+        MinRelativeCo2 = 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
          # lower rate of occurrence of the potential error explained by
          # co-occurrence with the potential parent for considering error
          # state.
-        RatioType = "min" # options: "min" and "avg"
+        RatioType2 = "min" # options: "min" and "avg"
         #sets whether a potential error must have lower
         #  abundance than the parent in all samples ‘min’ (default), or
         #  if an error just needs to have lower abundance on average
@@ -89,7 +109,21 @@
     # IDTAXA settings
         Type ="Assign"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
-        trainingSet= "Biocode_ER_IdtaxaClassifier.Rdata" 
+        desiredranks<-NULL
+            #determine this based on the training set you are using (accessible with trainingSet[[3]]). If this trainingSet
+            #does not contain ranks then this is ignored, and it is assumed all reference sequences have an assignment at 
+            #all ranks. If this is not the case assignment will be unusable. If the trainingSet does contain ranks then only 
+            #the ranks specified here are reported, this enables comparison between assignments based on columns. e.g. class 
+            #assignments for all sequences will be in the same column
+            #some examples for 18s ref libraries:
+                #SILVA 18s
+                    #desiredranks<-c("rootrank", "domain", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "infraphylum", "superclass", "class", "subclass", "infraclass", "superorder",  "order", "suborder", "superfamily", "family", "subfamily", "genus")
+                #PR2 18s
+                    #desiredranks<-c("rootrank", "kingdom", "division", "phylum", "class", "order", "family", "genus")
+                #GTDB 16s
+                    #desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")
+ 
+        trainingSet= "ARMS_classifier_mediumtest_Final_IdtaxaClassifier.Rdata" 
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"

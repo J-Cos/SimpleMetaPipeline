@@ -56,6 +56,26 @@
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)
 
+    # lulu settings1
+        MatchRate1=97 #as a %, default 84
+            # % matching bases to consider clustering OTUs if co-occurence seen. 
+        MinRelativeCo1= 0.95 #as a decimal, default 0.95
+        #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
+         # lower rate of occurrence of the potential error explained by
+         # co-occurrence with the potential parent for considering error
+         # state.
+        RatioType1= "avg" # options: "min" and "avg"
+        #sets whether a potential error must have lower
+        #  abundance than the parent in all samples ‘min’ (default), or
+        #  if an error just needs to have lower abundance on average
+        #  ‘avg’. Choosing lower abundance on average over globally
+        #  lower abundance will greatly increase the number of
+        #  designated errors. This option was introduced to make it
+        #  possible to account for non-sufficiently clustered
+        #  intraspecific variation, but is not generally recommended, as
+        #  it will also increase the potential of cluster
+        #  well-separated, but co-occuring, sequence similar species.
+
      # cluster settings   
         linkage = "complete"
              #either complete (vsearch) or single (swarm)
@@ -66,15 +86,15 @@
         threads=4
             # number of threads available 
 
-    # lulu settings
-        MatchRate=84 #as a %, default 84
+    # lulu settings2
+        MatchRate2=84 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
-        MinRelativeCo = 0.95 #as a decimal, default 0.95
+        MinRelativeCo2 = 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
          # lower rate of occurrence of the potential error explained by
          # co-occurrence with the potential parent for considering error
          # state.
-        RatioType = "min" # options: "min" and "avg"
+        RatioType2 = "min" # options: "min" and "avg"
         #sets whether a potential error must have lower
         #  abundance than the parent in all samples ‘min’ (default), or
         #  if an error just needs to have lower abundance on average
@@ -89,12 +109,25 @@
     # IDTAXA settings
         Type ="Assign"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
-        trainingSet= "GTDB_r202-mod_April2021.RData" 
+        desiredranks<-c("rootrank", "domain", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "infraphylum", "superclass", "class", "subclass", "infraclass", "superorder",  "order", "suborder", "superfamily", "family", "subfamily", "genus")
+            #determine this based on the training set you are using (accessible with trainingSet[[3]]). If this trainingSet
+            #does not contain ranks then this is ignored, and it is assumed all reference sequences have an assignment at 
+            #all ranks. If this is not the case assignment will be unusable. If the trainingSet does contain ranks then only 
+            #the ranks specified here are reported, this enables comparison between assignments is possible. e.g. looking at class 
+            #assignments for all sequences.
+            #some examples for 18s ref libraries:
+                #SILVA 18s
+                    #desiredranks<-c("rootrank", "domain", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "infraphylum", "superclass", "class", "subclass", "infraclass", "superorder",  "order", "suborder", "superfamily", "family", "subfamily", "genus")
+                #PR2 18s
+                    #desiredranks<-c("rootrank", "kingdom", "division", "phylum", "class", "order", "family", "genus")
+                #GTDB 16s
+                    #desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")
         #trainingSet="SILVA_SSU_r138_2019.RData"
+        trainingSet="PR2_v4_13_March2021.RData"
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
-        threshold=30 
+        threshold=0 
             # %age confidence of assignment required to record assignment
             #30=low confidence, 40=moderate, 50 = high, 60= very high
 
