@@ -1,13 +1,16 @@
 
-# pipeline function to blast query sequences against Biocode (should be generalised long-term)
+# pipeline function to blast query sequences - defaults to ESVs, 
+# other clusters may not have fastas auto-output from earlier steps to serve as inputs
 #test<-RunBLAST( path="~/Dropbox/BioinformaticPipeline_Env",
- #               dbname="BIOCODE_ER",
-  #              queryfasta="test.fasta")
+ #               dbname="BIOCODE_ER")
 
     #requires tidyverse
 
 
-RunBLAST<-function(path, dbname, queryfasta) {
+RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThresholds) {
+
+    #query fasta 
+        queryfasta<-paste0(dataname, "_", clustering, "_sequences.fasta")
 
     #blastn seqs
         system(command= paste0( "~/miniconda3/bin/blastn ",
@@ -23,15 +26,46 @@ RunBLAST<-function(path, dbname, queryfasta) {
         blast_output<-read.table( file.path(path,"IntermediateOutputs", paste0("BlastOutput_", dbname, ".out")), header=FALSE, sep="\t")
 
     #adjust names blastoutput
-        names(blast_output)<-c("OTU", "ID", "percent_identical_matches", "evalue", "query_coverage")
-
+        names(blast_output)<-c(clustering, "SeqID", "Blast_percentIdentical", "Blast_evalue", "Blast_query_coverage")
+        #ensure SeqID column has same upper lower format as taxid (blast seems to modify this for certain rows... not sure why)
+        blast_output$SeqID<-str_to_title(blast_output$SeqID)
+    
     #map taxonomy df onto blast output
-        for (i in 1: dim(blast_output)[1]) {
-            blast_output$ID[i]<-unlist ( str_split(blast_output$ID[i], "\\|") )[1]
+        #load file
+            blastTaxidMap<- readLines(file.path(path, "Data", "BlastDBs", paste0(dbname,"_TaxidMap.txt")))
+        
+        #seperate id and create base df
+            Taxid_components<-str_split(blastTaxidMap, " ", 2)
+            Taxid_df<-data.frame(SeqID=unlist(lapply(Taxid_components, '[', 1)))
+        # seperate taxa ranks and add into df
+            taxa<-unlist(lapply(Taxid_components, '[', 2))
+            taxaRanks_vectorList<-str_split(taxa, ";", simplify=TRUE)
+            
+            taxaRanks_df<-as.data.frame(taxaRanks_vectorList)
+            names(taxaRanks_df)<-c("Root", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+            Taxid_df<-cbind(Taxid_df, taxaRanks_df)
+
+    #combine taxa names and blast_output
+        FullBlastOutput<-left_join(blast_output, Taxid_df, by = "SeqID")
+        FullBlastOutput<-FullBlastOutput[!names(FullBlastOutput)=="SeqID"]
+
+    #pick blast top hits
+        blastTopHits<-FullBlastOutput[!duplicated(FullBlastOutput[clustering]),]
+
+
+    #use %age match to truncate assignments at appropriate rank
+
+        for (row in 1:dim(blastTopHits)[1]) {
+            item<-blastTopHits[row,]
+            item[item==""]<-paste0("Unknown_",item[length(item)-sum(item=="")])
+            positiveAssignments<-item$Blast_percentIdentical>assignmentThresholds
+            item[6:length(item)][ !positiveAssignments]<- paste0("Unclassified_",item[5+sum(positiveAssignments)])
+            blastTopHits[row,]<-item
         }
 
-        x<-left_join(blast_output, Tax_df, by = "ID")
+        SeqDataTable<-merge(TableToMergeTo,blastTopHits, by= clustering, all=TRUE)
 
 
-        return(x)
+
+        return(list("SeqDataTable"=SeqDataTable, "FullBlastOutput"=FullBlastOutput))
     }

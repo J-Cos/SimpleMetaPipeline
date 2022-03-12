@@ -132,6 +132,16 @@
             #30=low confidence, 40=moderate, 50 = high, 60= very high
 
 
+    #BLAST
+        Blast= "Yes" 
+            #run blast or not, "Yes" to run it!
+        dbname= "MidoriBiocodeBlastDB" 
+            # name of the blast db
+        assignmentThresholds=c(0, 0, 0, 85, 90, 95, 98)
+            #similarity thresholds at which blast assignments should be made. 
+            # read from top rank to bottom rank. Requires a value for each rank in dataset.
+        
+
 # run pipeline
     source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLCLA_Pipeline.R"))
 

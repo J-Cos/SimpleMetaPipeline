@@ -150,6 +150,22 @@
     # 6.2 cache Output
         CacheOutput(IdtaxaOutput)
     
+
+#7 Run Blast
+
+    #process inputs
+        ConfirmInputsPresent("CutadaptOutput")
+        ConfirmInputsPresent("DadaOutput")
+        ConfirmInputsPresent("LuluOutput1")
+        ConfirmInputsPresent("ClusterOutput")
+        ConfirmInputsPresent("LuluOutput2")
+        ConfirmInputsPresent("IdtaxaOutput")
+    
+    #run blast if desired
+    if (Blast=="Yes"){
+       BlastOutput<-RunBLAST(dbname=dbname, clustering="ESV", TableToMergeTo=IdtaxaOutput$SeqDataTable, assignmentThresholds=assignmentThresholds) 
+    }
+    
 # 7 Creating final results from intermediate outputs
     #process inputs
         ConfirmInputsPresent("CutadaptOutput")
@@ -158,6 +174,9 @@
         ConfirmInputsPresent("ClusterOutput")
         ConfirmInputsPresent("LuluOutput2")
         ConfirmInputsPresent("IdtaxaOutput")
+    if (Blast=="Yes"){
+        ConfirmInputsPresent("BlastOutput")
+    }
 
     # 7.1 save sequences and clusters to results
         #SaveSequenceDataTableToDataBase(Input=IdtaxaOutput)
@@ -178,7 +197,14 @@
 
             WriteClusteringTable(FinalOutput=LuluOutput2, pipeline="DLSL")
 
-            if ( ! is.null(IdtaxaOutput) ) {
+            
+            if ( ! is.null(BlastOutput)) {
+                saveRDS(BlastOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
+                write.csv(BlastOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.csv")))
+                
+                write.csv( BlastOutput$FullBlastOutput, file=file.path(path,"Results",paste0(dataname,"_FullBlastOutput.csv")) )
+
+            } else if ( ! is.null(IdtaxaOutput) ) {
                 saveRDS(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
                 write.csv(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.csv")))
                 
