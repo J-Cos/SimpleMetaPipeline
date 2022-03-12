@@ -107,7 +107,7 @@
                                     differences=differences,
                                     threads=threads,
                                     TableToMergeTo=LuluOutput1,
-                                    clustering="curatedESV",
+                                    clustering="ESV",
                                     HPC=HPC,
                                     SimilarityThreshold=SimilarityThreshold)
 

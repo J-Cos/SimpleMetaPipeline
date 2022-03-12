@@ -8,10 +8,10 @@ RunVSEARCH<-function(SimilarityThreshold=0.97, clustering="curatedESV", TableToM
     } else  { (print("unrecognised clustering request")) }
 
     write.fasta(sequences=Sequences, names=Sequences,
-                        file.out=file.path(path, "IntermediateOutputs", paste0(dataname, "_", clustering, "_sequences.fasta")))
+                        file.out=file.path(path, "IntermediateOutputs", paste0(dataname, "_", clustering, "_sequences_NamedAsSeqs.fasta")))
 
     #create matchlist from fasta
-    sequencesfile<-paste0(dataname, "_", clustering, "_sequences.fasta")
+    sequencesfile<-paste0(dataname, "_", clustering, "_sequences_NamedAsSeqs.fasta")
     system(command= paste0("mkdir -p ", file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchOTUs")),
                             " && vsearch --cluster_size ",
                             file.path(path,"IntermediateOutputs",sequencesfile),
