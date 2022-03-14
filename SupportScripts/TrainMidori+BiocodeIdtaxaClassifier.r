@@ -33,6 +33,11 @@
     BiocodeFasta<-"BIOCODE_JAN21_ER_edit.fasta"
     MidoriFasta="MIDORI_UNIQ_NUC_SP_GB247_CO1_RDP.fasta"
     libraryname<-"ARMS_classifier"
+    maxGroupSize<-Inf
+    LargeTerrestrialOrders<-c("Araneae", "Hemiptera", "Coleoptera", "Hymenoptera", "Lepidoptera", "Diptera")
+    LargestMarineOrder<-"Decapoda"
+    subsampleLargeTerrestrialOrders<-"SubsampleTerrestrial" # either 1) "SubsampleTerrestrial" or 2) ""
+
 
 # Functions
         #function_files<-list.files(file.path(path, "BioinformaticPipeline", "SupportFunctions"))
@@ -127,7 +132,11 @@
         new_list_item<-paste0("Root;Eukaryota;",list_item_noroot)
         return(new_list_item)
     }
-
+    MakeTaxDf <- function(seqs){
+        splits<-strsplit(names(seqs), ";")
+        Tax_df<-plyr::ldply(splits, rbind )
+        return(Tax_df)
+    }
 
 #4. format inputs
     #biocode
@@ -154,18 +163,37 @@
         seqs <- OrientNucleotides(seqs)
             print("nucleotides reoriented")
 
-# Checkpoint - save seqs to output for inspection
-    writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_combinedSeqs.fasta")), format="fasta", width=10000)
+    # Checkpoint - save seqs to output for inspection
+        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_combinedSeqs.fasta")), format="fasta", width=10000)
+
+#5. subsample large terrestrial orders
+    if (subsampleLargeTerrestrialOrders=="SubsampleTerrestrial"){
+
+        Tax_df<-MakeTaxDf(seqs=seqs)       
+
+        SizeOfLargestMarineOrder<-sum(Tax_df[,5] == LargestMarineOrder, na.rm=TRUE) # na removal discounts seqs of unknown order (e.g. a sequence only labelled "arthropoda")
+
+        TerrestrialSeqsToRemove<-c()
+        for (i in 1: length(LargeTerrestrialOrders)){
+            TerrestrialOrderSeqs<-which(Tax_df[,5] == LargeTerrestrialOrders[i])
+            TerrestrialOrderSeqsToRemove<-sample(TerrestrialOrderSeqs, length(TerrestrialOrderSeqs)-SizeOfLargestMarineOrder, replace=FALSE)
+            TerrestrialSeqsToRemove<-c(TerrestrialSeqsToRemove, TerrestrialOrderSeqsToRemove)
+        }
+        seqs<-seqs[-TerrestrialSeqsToRemove,]
+
+    # Checkpoint - save seqs to output for inspection
+        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_combinedSeqs.fasta")), format="fasta", width=10000)
+
+    }
+
+#6. train classifier 
+    IdtaxaClassifierOutputs<-TrainIdtaxaClassifier(seqs=seqs, maxGroupSize=maxGroupSize, maxIterations=3)
 
 
-#5. train classifier 
-    IdtaxaClassifierOutputs<-TrainIdtaxaClassifier(seqs=seqs, maxGroupSize=10, maxIterations=3)
-
-
-#6. save 
+#7. save 
     trainingSet<-IdtaxaClassifierOutputs[[1]]
-    save(trainingSet, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_Final_IdtaxaClassifier.Rdata")))
+    save(trainingSet, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_Final_IdtaxaClassifier.Rdata")))
 
-    pdf(file = file.path(path, "Data", "Classifiers", paste0(libraryname, "_IdtaxaClassifierTrainingSet.pdf")))   # The directory you want to save the file in
+    pdf(file = file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_IdtaxaClassifierTrainingSet.pdf")))   # The directory you want to save the file in
     plot(IdtaxaClassifierOutputs[[1]])
     dev.off()
