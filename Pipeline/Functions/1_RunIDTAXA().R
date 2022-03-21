@@ -27,7 +27,7 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
                         type="extended",
                         strand="both",
                         threshold=threshold,
-                        processors=4)
+                        processors=NULL)
 
             #if rank in ids
             if ('rank' %in% colnames(as.data.frame(ids[1][[1]]))) {
