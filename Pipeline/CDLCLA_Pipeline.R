@@ -14,10 +14,11 @@
     set.seed(0.1)
 
 #2 dependencies    
-    #installed software
+    #installed software (get latest from bioconda e.g.  conda install -c bioconda blast==2.12.0)
         #vsearch
         #swarm v2
-    #R packages
+        #blast
+    #R packages (install from bioconductor or through R devtools as appropriate )
     if (!require("pacman")) install.packages("pacman")
     pacman::p_load( dada2,
                     seqinr,
@@ -27,8 +28,7 @@
                     ggplot2,
                     gridExtra,
                     ShortRead,
-                    Biostrings,
-                    insect)
+                    Biostrings)
 
     #Functions
         function_files<-list.files(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions"))
@@ -153,7 +153,7 @@
 
 #7 Run Blast
 
-    #process inputs
+    #7.0 process inputs
         ConfirmInputsPresent("CutadaptOutput")
         ConfirmInputsPresent("DadaOutput")
         ConfirmInputsPresent("LuluOutput1")
@@ -161,12 +161,15 @@
         ConfirmInputsPresent("LuluOutput2")
         ConfirmInputsPresent("IdtaxaOutput")
     
-    #run blast if desired
+    #7.1 run blast if desired
     if (Blast=="Yes"){
        BlastOutput<-RunBLAST(dbname=dbname, clustering="ESV", TableToMergeTo=IdtaxaOutput$SeqDataTable, assignmentThresholds=assignmentThresholds) 
     }
-    
-# 7 Creating final results from intermediate outputs
+
+    # 7.2 cache Output
+        CacheOutput(BlastOutput)
+       
+# 8 Creating final results from intermediate outputs
     #process inputs
         ConfirmInputsPresent("CutadaptOutput")
         ConfirmInputsPresent("DadaOutput")
@@ -178,7 +181,7 @@
         ConfirmInputsPresent("BlastOutput")
     }
 
-    # 7.1 save sequences and clusters to results
+    # 8.1 save sequences and clusters to results
         #SaveSequenceDataTableToDataBase(Input=IdtaxaOutput)
 
         #save dada plots            
