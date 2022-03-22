@@ -51,14 +51,13 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
                 ExtractFromIds<-function(list_item, category){
                         ListItemLength<-length(list_item[[category]])
                         if (ListItemLength < Nranks) {
-                        list_item[[category]][(ListItemLength+1):Nranks] <-list_item[[category]][(ListItemLength)] #ensures that looking at a low unclassified rank you can see what groups it is in
+                        list_item[[category]][(ListItemLength+1):Nranks] <-NA
                         }
                         return(list_item[[category]])
                     }
 
                 Nranks<-max( unlist ( lapply ( lapply( ids, '[[', 1), length)))
-                FullRanksIndex<- unlist ( lapply ( lapply( ids, '[[', 1), length))==Nranks
-                ids[1][[1]]$rank
+
 
                 TaxonVecList<-lapply(ids, ExtractFromIds, category="taxon")
                 TaxonDf<-plyr::ldply(TaxonVecList, rbind)
@@ -70,6 +69,7 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
                 names(IdtaxaDf)<-c("ESV", paste0("Rank_", 1:Nranks), paste0("Rank_", 1:Nranks, "_Confidence"))
 
             }
+
 
         #merge with seq data table
             SeqDataTable<-merge(TableToMergeTo,IdtaxaDf, by= "ESV", all=TRUE)
