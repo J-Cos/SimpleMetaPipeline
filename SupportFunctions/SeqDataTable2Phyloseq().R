@@ -1,8 +1,8 @@
 #dependencies 
-    #phyloseq
-    #tidyverse
-    #DECIPHER
-
+    #library(phyloseq)
+    #library(tidyverse)
+    #library(DECIPHER)
+               
 # function to take output of bioinformatic pipeline into phyloseq
     #example
         #example<-SeqDataTable2Phyloseq(SeqDataTablefile="23s_test_SeqDataTable.RDS", clustering="curatedOTU", Metadata=NULL, assignment="BLAST")
@@ -22,7 +22,7 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
 
         SeqDataTable<-readRDS(SeqDataTablePath)
 
-        #rename this column to match all others - should be fixed downstream later
+        #rename this column to match all others - should be fixed upstream in the pipeline later
         names(SeqDataTable)[names(SeqDataTable)=="OTUrepresentativeSequence"]<-"OTURepresentativeSequence"
 
 
@@ -54,14 +54,22 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
 
 
     #create input matrices
-        #otumat
+        #otumat - with sample names reformating to match standard in metadata
         otumat<-SeqDataTable %>% 
             group_by( !!symclustering ) %>% 
             summarise_if(is.numeric,sum) %>% 
             column_to_rownames(clustering)%>% 
             as.matrix()
+            
+        reformatSampleNames<-function(list_item) {
+            string<-unlist(strsplit(list_item, "_"))
+            newstring<-string[c(-1, (-length(string)+1):-length(string))]
+            newstring<-paste(newstring, collapse="_")
+            return(newstring)
+        }
+        colnames(otumat)<-lapply(colnames(otumat), reformatSampleNames)
 
-
+        #taxmat
         if (clustering=="ESV") {
               taxmat<-SeqDataTable[,AssignmentIndices]
                 taxmat$cluster<-SeqDataTable$ESV
@@ -92,7 +100,7 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
             names(refseqs)<-rownames(refseqs_df)
         }
 
-        
+
     #create phyloseq object depending on which matrices present
         if (assignment=="None" & is.null(Metadata)) {
             ps<-phyloseq(
