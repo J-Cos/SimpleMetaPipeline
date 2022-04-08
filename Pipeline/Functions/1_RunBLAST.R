@@ -71,7 +71,7 @@ RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThreshold
             item<-blastTopHits[row,]
             item[item==""]<-paste0("Unknown_",item[length(item)-sum(item=="")])
             positiveAssignments<-item$Blast_percentIdentical>assignmentThresholds
-            item[6:length(item)][ !positiveAssignments]<- paste0("Unclassified_",item[5+sum(positiveAssignments)])
+            item[6:length(item)][ !positiveAssignments]<- paste0("unclassified_",item[5+sum(positiveAssignments)]) # unclassified not capitalised to match standard Idtaxa output
             blastTopHits[row,]<-item
         }
 
