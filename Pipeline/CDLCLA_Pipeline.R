@@ -10,10 +10,10 @@
 
 # to parameterise the pipeline for a specific dataset please create a new ParameterSet script.
 
-#1 set seed for replication
+#A set seed for replication
     set.seed(0.1)
 
-#2 dependencies    
+#B dependencies    
     #installed software (get latest from bioconda e.g.  conda install -c bioconda blast==2.12.0)
         #vsearch
         #swarm v2
@@ -35,140 +35,155 @@
         sapply(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions",function_files),source)
 
 
-#3 Cutadapt
-    # 3.0 process inputs
-        #none required 
-    
-    # 3.1 Run Module
-    CutadaptOutput<-RunCutadapt(FWD =FWD,  ## CHANGE ME to your forward primer sequence
-                REV = REV,  ## CHANGE ME...
-                multithread=TRUE,
-                dataname=dataname,
-                UseCutadapt=UseCutadapt)
-
-        #inspect outputs
-            #CutadaptOutput$PrimerCountSamplesList
-            #CutadaptOutput$PrimerCountCutadaptedSamplesList
-
-    # 3.2 cache Output
-        CacheOutput(CutadaptOutput)
-
-#3 DADA2
-    # 3.0 process inputs
-        #none required 
-    
-    # 3.1 Run Module
-        DadaOutput<-RunDADA2(   truncLen=truncLen, 
-                                trimLeft=trimLeft, 
-                                maxN=maxN, 
-                                maxEE=maxEE, 
-                                truncQ=truncQ,
-                                DesiredSequenceLengthRange=DesiredSequenceLengthRange,
-                                dataname=dataname,
-                                multithread=multithread,
-                                pool=pool)
-
-        #inspect outputs
-            #DadaOutput$SeqDataTable
-            #DadaOutput$SecondaryOutputs$DadaPlots
-            #DadaOutput$SecondaryOutputs$DadaTables
-            #DadaOutput$SecondaryOutputs$SeqLengthDist
-
-    # 3.2 cache Output
-        CacheOutput(DadaOutput)
+#C identify where the pipeline should start
+    StartingStep<-IdentifyLastInputPresent(c("CutadaptOutput", "DadaOutput", "LuluOutput1","ClusterOutput", "LuluOutput2", "IdtaxaOutput", "BlastOutput"))
 
 
-#4 LULU1
-    #4.0 process inputs
-        ConfirmInputsPresent("DadaOutput")
 
-        OtuTableForLulu<-CreateOtuTableForLulu(Input=DadaOutput$SeqDataTable, clustering = "ESV")
+#1 Cutadapt
+    if (StartingStep <= 1) {
+        # 1.0 process inputs
+            #none required 
+        
+        # 1.1 Run Module
+        CutadaptOutput<-RunCutadapt(FWD =FWD,  ## CHANGE ME to your forward primer sequence
+                    REV = REV,  ## CHANGE ME...
+                    multithread=TRUE,
+                    dataname=dataname,
+                    UseCutadapt=UseCutadapt)
 
-        MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate1, clustering="ESV", HPC=HPC)
-    
-    # 4.1 Run Module
-        LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate1, MinRelativeCo=MinRelativeCo1, RatioType=RatioType1, clustering="ESV") # inputs are Otutable and matchlist created previously
+            #inspect outputs
+                #CutadaptOutput$PrimerCountSamplesList
+                #CutadaptOutput$PrimerCountCutadaptedSamplesList
 
-    # 4.2 cache Output
-        CacheOutput(LuluOutput1)
+        # 1.2 cache Output
+            CacheOutput(CutadaptOutput)
+    }
+#2 DADA2
+    if (StartingStep<=2){
+        # 2.0 process inputs
+            #none required 
+        
+        # 2.1 Run Module
+            DadaOutput<-RunDADA2(   truncLen=truncLen, 
+                                    trimLeft=trimLeft, 
+                                    maxN=maxN, 
+                                    maxEE=maxEE, 
+                                    truncQ=truncQ,
+                                    DesiredSequenceLengthRange=DesiredSequenceLengthRange,
+                                    dataname=dataname,
+                                    multithread=multithread,
+                                    pool=pool)
 
+            #inspect outputs
+                #DadaOutput$SeqDataTable
+                #DadaOutput$SecondaryOutputs$DadaPlots
+                #DadaOutput$SecondaryOutputs$DadaTables
+                #DadaOutput$SecondaryOutputs$SeqLengthDist
 
-#5 Clustering
-    #5.0 process inputs
-        #in general this will always be checking the previous modules output is present
-        # then coverting it to required input formats for next module
-        #if DadaOutput not loaded then read it in
+        # 2.2 cache Output
+            CacheOutput(DadaOutput)
+    }
+
+#3 LULU1
+    if (StartingStep<=3){
+        #3.0 process inputs
+            ConfirmInputsPresent("DadaOutput")
+
+            OtuTableForLulu<-CreateOtuTableForLulu(Input=DadaOutput$SeqDataTable, clustering = "ESV")
+
+            MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate1, clustering="ESV", HPC=HPC)
+        
+        # 3.1 Run Module
+            LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate1, MinRelativeCo=MinRelativeCo1, RatioType=RatioType1, clustering="ESV") # inputs are Otutable and matchlist created previously
+
+        # 3.2 cache Output
+            CacheOutput(LuluOutput1)
+    }
+
+#4 Clustering
+    if (StartingStep<=4){
+        #4.0 process inputs
+            #in general this will always be checking the previous modules output is present
+            # then coverting it to required input formats for next module
+            #if DadaOutput not loaded then read it in
+                ConfirmInputsPresent("DadaOutput")
+                ConfirmInputsPresent("LuluOutput1")
+
+        # 4.1 Run Module in this case you have a choice between vsearch and swarm (algorithms which 
+        # efficiently implement complete linkage clustering and single linkage clustering respectively.)
+            ClusterOutput<-ClusterOTUs( linkage=linkage, #either 'complete' (vsearch) or 'single' (swarm)
+                                        differences=differences,
+                                        threads=threads,
+                                        TableToMergeTo=LuluOutput1,
+                                        clustering="ESV",
+                                        HPC=HPC,
+                                        SimilarityThreshold=SimilarityThreshold)
+
+            #inspect outputs
+                #ClusterOutput
+
+        # 4.2 cache Output
+            CacheOutput(ClusterOutput)
+    }
+
+#5 LULU2
+    if (StartingStep<=5){
+        #5.0 process inputs
             ConfirmInputsPresent("DadaOutput")
             ConfirmInputsPresent("LuluOutput1")
+            ConfirmInputsPresent("ClusterOutput")
 
-    # 5.1 Run Module in this case you have a choice between vsearch and swarm (algorithms which 
-    # efficiently implement complete linkage clustering and single linkage clustering respectively.)
-        ClusterOutput<-ClusterOTUs( linkage=linkage, #either 'complete' (vsearch) or 'single' (swarm)
-                                    differences=differences,
-                                    threads=threads,
-                                    TableToMergeTo=LuluOutput1,
-                                    clustering="ESV",
-                                    HPC=HPC,
-                                    SimilarityThreshold=SimilarityThreshold)
+            OtuTableForLulu<-CreateOtuTableForLulu(Input=ClusterOutput, clustering="OTU")
 
-        #inspect outputs
-            #ClusterOutput
+            MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate2, clustering="OTU", HPC=HPC)
+        
+        # 5.1 Run Module
+            LuluOutput2<-RunLULU(TableToMergeTo=ClusterOutput, MatchRate=MatchRate2, MinRelativeCo=MinRelativeCo2, RatioType=RatioType2, clustering="OTU") # inputs are Otutable and matchlist created previously
 
-    # 5.2 cache Output
-        CacheOutput(ClusterOutput)
-    
-#5 LULU2
-    #5.0 process inputs
-        ConfirmInputsPresent("DadaOutput")
-        ConfirmInputsPresent("LuluOutput1")
-        ConfirmInputsPresent("ClusterOutput")
-
-        OtuTableForLulu<-CreateOtuTableForLulu(Input=ClusterOutput, clustering="OTU")
-
-        MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate2, clustering="OTU", HPC=HPC)
-    
-    # 5.1 Run Module
-        LuluOutput2<-RunLULU(TableToMergeTo=ClusterOutput, MatchRate=MatchRate2, MinRelativeCo=MinRelativeCo2, RatioType=RatioType2, clustering="OTU") # inputs are Otutable and matchlist created previously
-
-    # 5.2 cache Output
-        CacheOutput(LuluOutput2)
-    
+        # 5.2 cache Output
+            CacheOutput(LuluOutput2)
+    }
 
 
 # 6 IDTAXA
-    #6.0 process inputs
-        ConfirmInputsPresent("DadaOutput")
-        ConfirmInputsPresent("LuluOutput1")
-        ConfirmInputsPresent("ClusterOutput")
-        ConfirmInputsPresent("LuluOutput2")
+    if (StartingStep<=6){
 
-        #load reference library
+        #6.0 process inputs
+            ConfirmInputsPresent("DadaOutput")
+            ConfirmInputsPresent("LuluOutput1")
+            ConfirmInputsPresent("ClusterOutput")
+            ConfirmInputsPresent("LuluOutput2")
 
-    # 6.1 Run Module
-            IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold)
-            
-    # 6.2 cache Output
-        CacheOutput(IdtaxaOutput)
-    
+            #load reference library
 
-#7 Run Blast
-
-    #7.0 process inputs
-        ConfirmInputsPresent("CutadaptOutput")
-        ConfirmInputsPresent("DadaOutput")
-        ConfirmInputsPresent("LuluOutput1")
-        ConfirmInputsPresent("ClusterOutput")
-        ConfirmInputsPresent("LuluOutput2")
-        ConfirmInputsPresent("IdtaxaOutput")
-    
-    #7.1 run blast if desired
-    if (Blast=="Yes"){
-       BlastOutput<-RunBLAST(dbname=dbname, clustering="ESV", TableToMergeTo=IdtaxaOutput$SeqDataTable, assignmentThresholds=assignmentThresholds) 
+        # 6.1 Run Module
+                IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold)
+                
+        # 6.2 cache Output
+            CacheOutput(IdtaxaOutput)
     }
 
-    # 7.2 cache Output
-        CacheOutput(BlastOutput)
-       
+#7 Run Blast
+    if (StartingStep<=7){
+
+        #7.0 process inputs
+            ConfirmInputsPresent("CutadaptOutput")
+            ConfirmInputsPresent("DadaOutput")
+            ConfirmInputsPresent("LuluOutput1")
+            ConfirmInputsPresent("ClusterOutput")
+            ConfirmInputsPresent("LuluOutput2")
+            ConfirmInputsPresent("IdtaxaOutput")
+        
+        #7.1 run blast if desired
+        if (Blast=="Yes"){
+        BlastOutput<-RunBLAST(dbname=dbname, clustering="ESV", TableToMergeTo=IdtaxaOutput$SeqDataTable, assignmentThresholds=assignmentThresholds) 
+        }
+
+        # 7.2 cache Output
+            CacheOutput(BlastOutput)
+    }
+
 # 8 Creating final results from intermediate outputs
     #process inputs
         ConfirmInputsPresent("CutadaptOutput")
