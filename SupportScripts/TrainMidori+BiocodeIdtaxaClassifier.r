@@ -30,14 +30,16 @@
 
 #3. parameters
     path<-"../BioinformaticPipeline_Env"
-    BiocodeFasta<-"BIOCODE_JAN21_ER_edit.fasta"
-    MidoriFasta="MIDORI_UNIQ_NUC_SP_GB247_CO1_RDP.fasta"
+    biocodeVersion<-"JAN21"
+    midoriVersion="248"
     libraryname<-"ARMS_classifier"
     maxGroupSize<-Inf
     LargeTerrestrialOrders<-c("Araneae", "Hemiptera", "Coleoptera", "Hymenoptera", "Lepidoptera", "Diptera")
     LargestMarineOrder<-"Decapoda"
     subsampleLargeTerrestrialOrders<-"SubsampleTerrestrial" # either 1) "SubsampleTerrestrial" or 2) ""
 
+    BiocodeFasta<-paste0("BIOCODE_",biocodeVersion,"_ER_edit.fasta")
+    MidoriFasta=paste0("MIDORI_UNIQ_NUC_SP_GB", midoriVersion,"_CO1_RDP.fasta")
 
 # Functions
         #function_files<-list.files(file.path(path, "BioinformaticPipeline", "SupportFunctions"))
@@ -164,7 +166,7 @@
             print("nucleotides reoriented")
 
     # Checkpoint - save seqs to output for inspection
-        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_combinedSeqs.fasta")), format="fasta", width=10000)
+        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_m", midoriVersion, "_b", biocodeVersion, "_combinedSeqs.fasta")), format="fasta", width=10000)
 
 #5. subsample large terrestrial orders
     if (subsampleLargeTerrestrialOrders=="SubsampleTerrestrial"){
@@ -182,7 +184,7 @@
         seqs<-seqs[-TerrestrialSeqsToRemove,]
 
     # Checkpoint - save seqs to output for inspection
-        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_combinedSeqs.fasta")), format="fasta", width=10000)
+        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_m", midoriVersion, "_b", biocodeVersion,  "_combinedSeqs.fasta")), format="fasta", width=10000)
 
     }
 
@@ -192,8 +194,8 @@
 
 #7. save 
     trainingSet<-IdtaxaClassifierOutputs[[1]]
-    save(trainingSet, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_Final_IdtaxaClassifier.Rdata")))
+    save(trainingSet, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_m", midoriVersion, "_b", biocodeVersion, "_Final_IdtaxaClassifier.Rdata")))
 
-    pdf(file = file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_IdtaxaClassifierTrainingSet.pdf")))   # The directory you want to save the file in
+    pdf(file = file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_m", midoriVersion, "_b", biocodeVersion, "_IdtaxaClassifierTrainingSet.pdf")))   # The directory you want to save the file in
     plot(IdtaxaClassifierOutputs[[1]])
     dev.off()
