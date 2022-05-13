@@ -5,7 +5,8 @@
                
 # function to take output of bioinformatic pipeline into phyloseq
     #example
-        #example<-SeqDataTable2Phyloseq(SeqDataTablefile="23s_test_SeqDataTable.RDS", clustering="curatedOTU", Metadata=NULL, assignment="BLAST")
+        #example<-SeqDataTable2Phyloseq(SeqDataTablePath="23s_test_SeqDataTable.RDS", clustering="curatedOTU", Metadata=NULL, assignment="BLAST")
+        # SeqDataTable2Phyloseq(SeqDataTablePath="~/Dropbox/BioinformaticPipeline_Env/Results/Rosie2021_18s/Rosie2021_18s_SeqDataTable.RDS", clustering="ESV", Metadata=NULL, assignment="Idtaxa")
 
 #clustering can be ESV, curatedESV, OTU, curatedOTU
 #assignment can be BLAST, Idtaxa or None
@@ -49,7 +50,7 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
             if (assignment =="BLAST") {
                 AssignmentIndices<-( grep("Blast_query_coverage", colnames(SeqDataTable)) +1 ) : dim(SeqDataTable)[2]
             } else if (assignment== "Idtaxa") {
-                AssignmentIndices <- ( last(SampleIndices) + 1 ) : ( grep("_Confidence", colnames(SeqDataTable))[1] -1 )
+                AssignmentIndices <- ( max(SampleIndices) + 1 ) : ( grep("_confidence", colnames(SeqDataTable))[1] -1 )
             }
 
 
