@@ -50,7 +50,7 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
             if (assignment =="BLAST") {
                 AssignmentIndices<-( grep("Blast_query_coverage", colnames(SeqDataTable)) +1 ) : dim(SeqDataTable)[2]
             } else if (assignment== "Idtaxa") {
-                AssignmentIndices <- ( max(SampleIndices) + 1 ) : ( grep("_confidence", colnames(SeqDataTable))[1] -1 )
+                AssignmentIndices <- ( max(SampleIndices) + 1 ) : ( grep("_confidence", ignore.case=TRUE, colnames(SeqDataTable))[1] -1 )
             }
 
 
@@ -88,14 +88,14 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
 
         #refseqs
         if (clustering=="ESV") {
-              refseqs_df<-SeqDataTable[,c("Sequence",clustering)] %>%
-            arrange(, !!symclustering ) %>%
-            column_to_rownames(clustering)
+            refseqs_df<-SeqDataTable[,c("Sequence","ESV")]
+            refseqs_df<- arrange(refseqs_df, ESV ) %>%
+            column_to_rownames("ESV")
             refseqs <- DNAStringSet(refseqs_df$Sequence)
             names(refseqs)<-rownames(refseqs_df)
         } else {
-            refseqs_df<-SeqDataTable[SeqDataTable[[RepresentativeSequenceColumnName]]==TRUE,c("Sequence",clustering)] %>%
-            arrange(, !!symclustering ) %>%
+            refseqs_df<-SeqDataTable[SeqDataTable[[RepresentativeSequenceColumnName]]==TRUE,c("Sequence",clustering)]
+            refseqs_df<- arrange(refseqs_df, clustering ) %>%
             column_to_rownames(clustering)
             refseqs <- DNAStringSet(refseqs_df$Sequence)
             names(refseqs)<-rownames(refseqs_df)
