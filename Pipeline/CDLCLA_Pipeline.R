@@ -74,6 +74,8 @@
                                     dataname=dataname,
                                     multithread=multithread,
                                     pool=pool)
+                                    pool=pool,
+                                    MixedOrientation=MixedOrientation)
 
             #inspect outputs
                 #DadaOutput$SeqDataTable

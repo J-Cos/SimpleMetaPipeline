@@ -1,6 +1,6 @@
         RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), 
                             truncQ=2, DesiredSequenceLengthRange=NULL, dataname=NULL, multithread, pool,
-                            UseCutadapt=FALSE) {
+                            UseCutadapt=FALSE, MixedOrientation=FALSE) {
             #stop function if necessary arguments blank                    
             if (is.null(truncLen) | is.null(trimLeft)) stop("You must specify truncLen and trimLeft")
 
@@ -65,12 +65,35 @@
             DadaPlots[[4]]<-plotQualityProfile(filtRs) #example
             DadaPlots[[5]]<-plotErrors(errF, nominalQ=TRUE)
             DadaPlots[[6]]<-plotErrors(errR, nominalQ=TRUE)
-                
-            #format ESV data 
+
+            #create main output of ESVtable    
             ESVtable<-seqtab.nochim
+
+            # standardise orientations if each sample consisted of FO_R1, FO_R2, RO_R1, RO_R2 (i.e read were in mixed orientations)
+            if (MixedOrientation) {
+                #get Reverse oriented subsamples, filter out sequences only appearing in forward orientation, reverse complement remaining, and reinsert them into seq table
+                RevSamples<-ESVtable[!grepl('_FO',  rownames(ESVtable), fixed=T),]
+                RevESVtable<-RevSamples[,colSums(RevSamples)!=0]            
+                ReorientedSeqs<- reverseComplement(DNAStringSet(colnames(RevESVtable)))
+                ReorientedESVtable<-RevESVtable
+                colnames(ReorientedESVtable)<- as.character(ReorientedSeqs)
+
+                # get forward oriented reads, filter out sequences only appearing in reverse orientation
+                ForSamples<-ESVtable[!grepl('_RO',  rownames(ESVtable), fixed=T),]
+                ForESVtable<-ForSamples[,colSums(ForSamples)!=0]            
+
+                # remove orientation identifiers in sample names as all seqs are now in the same orientation
+                rownames(ReorientedESVtable)<- gsub('_RO', '', rownames(ReorientedESVtable))
+                rownames(ForESVtable)<- gsub('_FO', '', rownames(ForESVtable))
+
+                #merge forward and reverse complemented reverses, this merges both across sequences (standard) and across samples ( achieved through repeats=sum)
+                ESVtable<-mergeSequenceTables(ForESVtable, ReorientedESVtable, repeats="sum")
+            }
+
+            #format ESV data 
             ESVtable<-t(ESVtable) # make samples columns
             ESVtable<-cbind(paste0("ESV_",1:dim(ESVtable)[1]), rownames_to_column(as.data.frame(ESVtable))) #add esv id column
-            names(ESVtable)[1:2]<-c("ESV", "Sequence")
+            names(ESVtable)[1:2]<-c("ESV", "Sequence") 
             names(ESVtable)[3:length(names(ESVtable))]<-paste0("Sample_", names(ESVtable)[3:length(names(ESVtable))]) # giving all samples "Sample_" prefix
 
 

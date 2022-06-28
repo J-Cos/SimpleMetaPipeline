@@ -54,6 +54,10 @@
         pool="pseudo"
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)
+        MixedOrientation="FALSE"
+            # TRUE or FALSE. FALSE (default) means dada2 proceeds in the normal fashion. TRUE means that _RO and _FO 
+            # suffixes will be looked for in the sample names to enable samples containing reverse orientation (RO) sequences 
+            # to be reverse complemented and then merged into the matching sample containing the forward orientated sequences.
 
     # lulu settings1
         MatchRate1=97 #as a %, default 84
