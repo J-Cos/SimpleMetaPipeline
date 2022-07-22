@@ -13,6 +13,11 @@
 
 SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, assignment="None"){
 
+
+    require(phyloseq)
+    require(tidyverse)
+    require(DECIPHER)
+
     #check clustering valid, break if not
         validclusterings<-c("ESV", "curatedESV", "OTU", "curatedOTU")
         if (!clustering  %in%  validclusterings) { print(paste0(clustering, " clustering choice invalid please choose one of: ", validclusterings)) ; return(NULL)}
@@ -58,7 +63,7 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
         #otumat - with sample names reformating to match standard in metadata
         otumat<-SeqDataTable %>% 
             group_by( !!symclustering ) %>% 
-            summarise_if(is.numeric,sum) %>% 
+            summarise_at(colnames(SeqDataTable) [SampleIndices],sum) %>% 
             column_to_rownames(clustering)%>% 
             as.matrix()
             
