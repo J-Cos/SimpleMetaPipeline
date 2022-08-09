@@ -18,7 +18,7 @@
     dir.create((file.path("BioinformaticPipeline_Env", "Data", "Raw")))
 
 This creates a directory structure as follows:
-- FASTQs - fill this file with your unmerged multiplexed raw FASTQ files
+- FASTQs - fill this directory with directories titled Run1, Run2.. RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
 - Data - fill this file with your taxonomic reference library trainingsets and metadata (raw fastas in "Raw", IDtaxa classifiers in "Classifiers", and BlastDbs in "BlastDBs")
 - IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
 - Results - this is where final results will be saved

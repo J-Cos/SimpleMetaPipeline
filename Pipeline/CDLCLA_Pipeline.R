@@ -73,9 +73,9 @@
                                     DesiredSequenceLengthRange=DesiredSequenceLengthRange,
                                     dataname=dataname,
                                     multithread=multithread,
-                                    pool=pool)
                                     pool=pool,
-                                    MixedOrientation=MixedOrientation)
+                                    MixedOrientation=MixedOrientation,
+                                    NumberOfRuns=NumberOfRuns)
 
             #inspect outputs
                 #DadaOutput$SeqDataTable
