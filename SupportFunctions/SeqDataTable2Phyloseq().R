@@ -108,7 +108,8 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
                                                         group_by(!!sym(col)) %>%
                                                         summarise(Proportions=sum(Proportions))
                             if (max(AbundancePerAssignment$Proportions) >ClusterAssignment) {
-                                colAssignment<-as.character(AbundancePerAssignment[AbundancePerAssignment$Proportions==max(AbundancePerAssignment$Proportions),1])
+                                #colAssignment<-as.character(AbundancePerAssignment[AbundancePerAssignment$Proportions==max(AbundancePerAssignment$Proportions),1])
+                                colAssignment<-as.character(AbundancePerAssignment[order(-AbundancePerAssignment$Proportions),][1,1]) #avoids problem of two equally abundant options
                                 clusterRow <- c( clusterRow,colAssignment )
                             } else {
                                 clusterRow<- c( clusterRow,NA )
