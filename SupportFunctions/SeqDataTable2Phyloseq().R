@@ -12,7 +12,7 @@
 #assignment can be BLAST, Idtaxa or None
 #ClusterAssignment can be "RepresentativeSequence" or between 0 and 1 to represent the proportion of reads that must share an assignment for OTU to receive that assignment
 
-SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, assignment="None", ClusterAssignment="RepresentativeSequence"){
+SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, assignment="None", BLASTThreshold=NULL, ClusterAssignment="RepresentativeSequence", ReformatSampleNames=TRUE){
 
 
     require(phyloseq)
@@ -55,6 +55,15 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
             SampleIndices<-grep("Sample_", colnames(SeqDataTable))
             if (assignment =="BLAST") {
                 AssignmentIndices<-( grep("Blast_query_coverage", colnames(SeqDataTable)) +1 ) : dim(SeqDataTable)[2]
+                
+                #filter out blast top hits below threshold
+                if (!is.null(BLASTThreshold)) {
+                    ESVsBelowBlastThreshold<-SeqDataTable$Blast_percentIdentical < BLASTThreshold | SeqDataTable$Blast_query_coverage < BLASTThreshold
+                    ESVsBelowBlastThresholdOrNa<-ESVsBelowBlastThreshold
+                    ESVsBelowBlastThresholdOrNa[is.na(ESVsBelowBlastThresholdOrNa)] <-TRUE
+                    SeqDataTable[ESVsBelowBlastThresholdOrNa,AssignmentIndices]<-NA
+                }
+
             } else if (assignment== "Idtaxa") {
                 AssignmentIndices <- ( max(SampleIndices) + 1 ) : ( grep("_confidence", ignore.case=TRUE, colnames(SeqDataTable))[1] -1 )
             }
@@ -67,15 +76,15 @@ SeqDataTable2Phyloseq<-function(SeqDataTablePath, clustering, Metadata=NULL, ass
             summarise_at(colnames(SeqDataTable) [SampleIndices],sum) %>% 
             column_to_rownames(clustering)%>% 
             as.matrix()
-            
-        reformatSampleNames<-function(list_item) {
-            string<-unlist(strsplit(list_item, "_"))
-            newstring<-string[c(-1, (-length(string)+1):-length(string))]
-            newstring<-paste(newstring, collapse="_")
-            return(newstring)
+        if(ReformatSampleNames){  
+            reformatSampleNames<-function(list_item) {
+                string<-unlist(strsplit(list_item, "_"))
+                newstring<-string[c(-1, (-length(string)+1):-length(string))]
+                newstring<-paste(newstring, collapse="_")
+                return(newstring)
+            }
+            colnames(otumat)<-lapply(colnames(otumat), reformatSampleNames)
         }
-        colnames(otumat)<-lapply(colnames(otumat), reformatSampleNames)
-
         #taxmat
         if (clustering=="ESV") {
               taxmat<-SeqDataTable[,AssignmentIndices]
