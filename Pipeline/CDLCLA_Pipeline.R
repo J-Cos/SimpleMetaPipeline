@@ -179,8 +179,8 @@
         
         #7.1 run blast if desired
         if (Blast=="Yes"){
-        BlastOutput<-RunBLAST(dbname=dbname, clustering="ESV", TableToMergeTo=IdtaxaOutput$SeqDataTable, assignmentThresholds=assignmentThresholds) 
-        }
+        BlastOutput<-RunBLAST(dbname=dbname, clustering="ESV", TableToMergeTo=IdtaxaOutput$SeqDataTable, assignmentThresholds=assignmentThresholds, Blastdesiredranks= Blastdesiredranks) 
+        } else (BlastOutput<-NULL)
 
         # 7.2 cache Output
             CacheOutput(BlastOutput)
@@ -224,6 +224,10 @@
                 
                 write.csv( BlastOutput$FullBlastOutput, file=file.path(path,"Results",paste0(dataname,"_FullBlastOutput.csv")) )
 
+                pdf(file = file.path(path, "Results", paste0(dataname, "_TaxaAssignment.pdf")))   # The directory you want to save the file in
+                plot(IdtaxaOutput$PlotData)
+                dev.off()
+
             } else if ( ! is.null(IdtaxaOutput) ) {
                 saveRDS(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
                 write.csv(IdtaxaOutput$SeqDataTable, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.csv")))
@@ -231,6 +235,7 @@
                 pdf(file = file.path(path, "Results", paste0(dataname, "_TaxaAssignment.pdf")))   # The directory you want to save the file in
                 plot(IdtaxaOutput$PlotData)
                 dev.off()
+                
             } else {
                 saveRDS((LuluOutput2), file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.RDS")))
                 write.csv(LuluOutput2, file=file.path(path, "Results", paste0(dataname,"_SeqDataTable.csv")))

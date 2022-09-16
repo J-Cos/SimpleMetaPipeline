@@ -7,7 +7,7 @@
     #requires tidyverse
 
 
-RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThresholds) {
+RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThresholds, Blastdesiredranks=NULL) {
 
     #query fasta 
         queryfasta<-paste0(dataname, "_", clustering, "_sequences.fasta")
@@ -19,7 +19,7 @@ RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThreshold
                                 " -query ", file.path(path, "IntermediateOutputs", queryfasta),
                                 " -out ", file.path(path, "IntermediateOutputs", paste0("BlastOutput_", dbname, ".out")),
                                 " -outfmt '6 qseqid sseqid pident evalue qcovs' ", 
-                                " -evalue 1e-10" #expect value must be higher than this
+                                " -evalue 1e-1" #expect value must be higher than this
                                 ) 
             )
         }
@@ -54,7 +54,7 @@ RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThreshold
             taxaRanks_vectorList<-str_split(taxa, ";", simplify=TRUE)
             
             taxaRanks_df<-as.data.frame(taxaRanks_vectorList)
-            names(taxaRanks_df)<-c("Root", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+            names(taxaRanks_df)<-Blastdesiredranks
             Taxid_df<-cbind(Taxid_df, taxaRanks_df)
 
     #combine taxa names and blast_output
