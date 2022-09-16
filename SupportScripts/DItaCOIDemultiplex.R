@@ -10,7 +10,7 @@
     library(ShortRead)
     library(seqinr)
 
-    path<-'/home/j/Dropbox/BioinformaticPipeline_Env/FASTQs/2015'
+    path<-'/home/j/Dropbox/BioinformaticPipeline_Env/MultiplexedFastqs/DitaCOIMultiplexed'
     #contents of this directory should be:
         #Barcodes - this should contain a subdirectory for each run which in turn contains a list of the barcodes related to each run for each adapter
         #RunsSplitByAdapter - this should contain a subdirectory for each run which in turn contain R1 and R2 fastqs for each adapter
@@ -60,14 +60,33 @@
             #The presence of ambiguous bases (Ns) in the sequencing reads makes accurate mapping of short primer sequences difficult. Next we are going to “pre-filter” the sequences just to remove those with Ns, but perform no other filtering.
             out <- dada2::filterAndTrim(AdapterFastqs[1], path_filtered[1], AdapterFastqs[2], path_filtered[2], maxN=0, rm.phix=TRUE, compress=TRUE, multithread=TRUE, verbose=TRUE) 
 
+            #function to # Create all orientations of the input sequence
+            allOrients <- function(primer) {
+                require(Biostrings)
+                dna <- DNAString(primer)  # The Biostrings works w/ DNAString objects rather than character vectors
+                orients <- c(Forward = dna, Complement = complement(dna), Reverse = reverse(dna), 
+                    RevComp = reverseComplement(dna))
+                return(sapply(orients, toString))  # Convert back to character vector
+            }
+
+
             #create all orients
+            barcode_orients_l<-lapply(Barcodes_df$Barcode, allOrients)
+            
+            
             FO1<-lapply(paste0(Barcodes_df$Barcode, mlCOIintF), DNAString)
             RO1<-lapply(paste0(Barcodes_df$Barcode, jgHCO2198), DNAString)
+            RO2<-lapply(FO1, reverseComplement)
+            FO2<-lapply(RO1, reverseComplement)
 
             names(FO1)<-paste0(Barcodes_df$Sample, "_FO")
             names(RO1)<-paste0(Barcodes_df$Sample, "_RO")
+            names(RO2)<-paste0(Barcodes_df$Sample, "_RO")
+            names(FO2)<-paste0(Barcodes_df$Sample, "_FO")
 
             BarcodePrimers<-c(FO1, RO1)
+
+
 
             # Create paths for barcodes fastas
             path_barcodePrimerFastas<-str_replace(AdapterBarcodesFile, ".txt", "_withPrimers.fasta")
