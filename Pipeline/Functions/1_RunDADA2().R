@@ -123,7 +123,7 @@
 
             #merge runs
             if (NumberOfRuns>1) {
-                ESVtable <- mergeSequenceTables(tables=RunESVtables, repeats="Error") %>% collapseNoMismatch # merge all sequence tables and combine sequences of different lengths with all matching bases
+                ESVtable <- mergeSequenceTables(tables=RunESVtables, repeats="sum") %>% collapseNoMismatch # merge all sequence tables and combine sequences of different lengths with all matching bases
                 DadaPlots<-unlist(RunDadaPlots, recursive=FALSE)
                 DadaTables<-do.call("rbind", RunDadaTables)
                 SeqLengthDist<-table(nchar(getSequences(ESVtable)))
