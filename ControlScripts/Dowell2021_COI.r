@@ -2,7 +2,7 @@
 
     #cluster settings
         #on HPC?
-        HPC<-FALSE
+        HPC<-TRUE
         if (HPC==TRUE)   {setwd("/rds/general/user/jcw120/home/BioinformaticPipeline_Env")} #necessary as it appears different job classes have different WDs.
 
         #CRAN mirror
@@ -11,16 +11,15 @@
             options(repos = r)
 
     # general settings
-        #path <-"../BioinformaticPipeline_Env" # HPC
-        path <-"../../BioinformaticPipeline_Env" #for personal machine
-
+        path <-"../BioinformaticPipeline_Env" # HPC
+        #path <-"/Users/margauxsteyaert/Documents/PhD_Oxford/Data/ARMS/Pipeline_final/BioinformaticPipelineEnv/" #for personal machine
             # this should be the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
                 # FASTQs - fill this file with your unmerged multiplexed raw FASTQ files
                 # ReferenceLibraries - fill this file with your taxonomic reference library formatted either as i) ... or ii) ...
                 # IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
                 # Results - this is where final results will be saved
-        dataname="16s_test"
+        dataname="Rosie2021_COI"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.
         multithread=TRUE
@@ -29,15 +28,15 @@
     # Cutadapt settings
         UseCutadapt=FALSE
             # either TRUE or FALSE: determines whether cutadapt is run
-        FWD ="ACCTGCGGARGGATCA"
+        FWD ="ACCTG"
             ## CHANGE ME to your forward primer sequence
-        REV = "GAGATCCRTTGYTRAAAGTT",  
+        REV = "GAGAT"
             ## CHANGE ME...
 
     # DADA2 settings
-        truncLen=c(150,150)
+        truncLen=c(235,235)
             #the length at which the sequences should be truncated (forward and reverse)
-        trimLeft=c(0,0)
+        trimLeft=c(26,26)
             # the # of bases to remove from the start of the sequences
         maxN=0
             # after truncation seqs with more than this number of Ns are discarded (DADA2 does not allow Ns)
@@ -46,7 +45,7 @@
             # will be discarded. Expected errors are calculated from the nominal definition 
             # of the quality score: EE = sum(10^(-Q/10))
         truncQ=2
-            # Truncate reads at the first instance of a quality score less than or equal to ‘truncQ’. 
+            # Truncate reads at the first instance of a quality score less than or equal to ‘truncQ’.
         DesiredSequenceLengthRange=NULL
             #sequence length range to keep enter as e.g. 360:270, if NULL all sequence lengths are kept. 
             # Sequences that are much longer or shorter than expected
@@ -55,20 +54,16 @@
         pool="pseudo"
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)
-        MixedOrientation="FALSE"
-            # TRUE or FALSE. FALSE (default) means dada2 proceeds in the normal fashion. TRUE means that _RO and _FO 
-            # suffixes will be looked for in the sample names to enable samples containing reverse orientation (RO) sequences 
-            # to be reverse complemented and then merged into the matching sample containing the forward orientated sequences.
 
     # lulu settings1
-        MatchRate1=97 #as a %, default 84
+        MatchRate1=84 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
-        MinRelativeCo1= 0.95 #as a decimal, default 0.95
+        MinRelativeCo1 = 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
          # lower rate of occurrence of the potential error explained by
          # co-occurrence with the potential parent for considering error
          # state.
-        RatioType1= "avg" # options: "min" and "avg"
+        RatioType1 = "min" # options: "min" and "avg"
         #sets whether a potential error must have lower
         #  abundance than the parent in all samples ‘min’ (default), or
         #  if an error just needs to have lower abundance on average
@@ -80,6 +75,7 @@
         #  it will also increase the potential of cluster
         #  well-separated, but co-occuring, sequence similar species.
 
+
     # cluster settings   
         linkage = "complete"
              #either complete (vsearch) or single (swarm)
@@ -87,18 +83,18 @@
             #number of base differences at which swarm clustering will be performed (1=default)                               
         SimilarityThreshold = 0.97
             #%age similarity at which to cluster sequences as a decimal
-        threads=4
-            # number of threads available                  
+        threads=32
+            # number of threads available  
 
     # lulu settings2
         MatchRate2=84 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
-        MinRelativeCo2= 0.95 #as a decimal, default 0.95
+        MinRelativeCo2 = 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
          # lower rate of occurrence of the potential error explained by
          # co-occurrence with the potential parent for considering error
          # state.
-        RatioType2= "min" # options: "min" and "avg"
+        RatioType2 = "min" # options: "min" and "avg"
         #sets whether a potential error must have lower
         #  abundance than the parent in all samples ‘min’ (default), or
         #  if an error just needs to have lower abundance on average
@@ -113,7 +109,7 @@
     # IDTAXA settings
         Type ="Assign"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
-        desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")            
+        desiredranks<-NULL
             #determine this based on the training set you are using (accessible with trainingSet[[3]]). If this trainingSet
             #does not contain ranks then this is ignored, and it is assumed all reference sequences have an assignment at 
             #all ranks. If this is not the case assignment will be unusable. If the trainingSet does contain ranks then only 
@@ -126,21 +122,22 @@
                     #desiredranks<-c("rootrank", "kingdom", "division", "phylum", "class", "order", "family", "genus")
                 #GTDB 16s
                     #desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")
-        trainingSet= "GTDB_r202-mod_April2021.RData" 
-        #trainingSet="SILVA_SSU_r138_2019.RData"
+ 
+        trainingSet= "ARMS_classifier_Final_IdtaxaClassifier.Rdata" 
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
-        threshold=40
+        threshold=30
             # %age confidence of assignment required to record assignment
             #30=low confidence, 40=moderate, 50 = high, 60= very high
 
+
     #BLAST
-        Blast= "No" 
+        Blast= "Yes" 
             #run blast or not, "Yes" to run it!
-        dbname= "" 
+        dbname= "MidoriBiocodeBlastDB" 
             # name of the blast db
-        assignmentThresholds=c(0, 0, 0, 0, 0, 0, 0)
+        assignmentThresholds=c(0, 0, 0, 85, 90, 95, 98)
             #similarity thresholds at which blast assignments should be made. 
             # read from top rank to bottom rank. Requires a value for each rank in dataset.
         

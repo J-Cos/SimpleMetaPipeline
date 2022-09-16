@@ -35,9 +35,11 @@
             ## CHANGE ME...
 
     # DADA2 settings
-        truncLen=c(240,240)
+        NumberOfRuns<-1
+            #Number of sequencing runs used to generate the data for this experiment, e.g. 1 or 2
+        truncLen=list(c(240,240))
             #the length at which the sequences should be truncated (forward and reverse)
-        trimLeft=c(20,18)
+        trimLeft=list(c(20,18))
             # the # of bases to remove from the start of the sequences
         maxN=0
             # after truncation seqs with more than this number of Ns are discarded (DADA2 does not allow Ns)
@@ -113,11 +115,11 @@
     # IDTAXA settings
         Type ="Assign"  
             #whether to "Create" or "Load" a training set, or perform "No Assignment"
-        desiredranks<-c("rootrank", "domain", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "infraphylum", "superclass", "class", "subclass", "infraclass", "superorder",  "order", "suborder", "superfamily", "family", "subfamily", "genus")
+            desiredranks<-c("rootrank", "kingdom", "division", "phylum", "class", "order", "family", "genus")
             #determine this based on the training set you are using (accessible with trainingSet[[3]]). If this trainingSet
             #does not contain ranks then this is ignored, and it is assumed all reference sequences have an assignment at 
             #all ranks. If this is not the case assignment will be unusable. If the trainingSet does contain ranks then only 
-            #the ranks specified here are reported, this enables comparison between assignments is possible. e.g. looking at class 
+            #the ranks specified here are reported, this ensures comparison between assignments to sequences is easy. e.g. looking at class 
             #assignments for all sequences.
             #some examples for 18s ref libraries:
                 #SILVA 18s
@@ -131,9 +133,23 @@
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
-        threshold=0 
+        threshold=40 
             # %age confidence of assignment required to record assignment
             #30=low confidence, 40=moderate, 50 = high, 60= very high
+
+    #BLAST
+        Blast= "NO" 
+            #run blast or not, "Yes" to run it!
+        dbname= "SILVA138_BlastDB" 
+            # name of the blast db
+        assignmentThresholds=c(0, 0, 0, 0, 0, 0, 0)
+            #similarity thresholds at which blast assignments should be made. 
+            # read from top rank to bottom rank. Requires a value for each rank in dataset.
+        Blastdesiredranks<-c("rootrank", "domain", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "infraphylum", "superclass", "class", "subclass", "infraclass", "superorder",  "order", "suborder", "superfamily", "family", "subfamily", "genus")
+            #midori+biocode
+                # Blastdesiredranks<-c("Root", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+            #silva
+                #  Blastdesiredranks<-<-c("rootrank", "domain", "superkingdom", "kingdom", "subkingdom", "superphylum", "phylum", "subphylum", "infraphylum", "superclass", "class", "subclass", "infraclass", "superorder",  "order", "suborder", "superfamily", "family", "subfamily", "genus")
 
 # run pipeline
     source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLCLA_Pipeline.R"))

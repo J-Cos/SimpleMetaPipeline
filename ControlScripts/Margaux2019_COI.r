@@ -56,7 +56,7 @@
             # linearly increasing computational time (ca. doubled compared to no pooling)
 
     # lulu settings1
-        MatchRate1=84 #as a %, default 84
+        MatchRate1=97 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
         MinRelativeCo1 = 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
@@ -123,7 +123,7 @@
                 #GTDB 16s
                     #desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")
  
-        trainingSet= "ARMS_classifier_mediumtest_Final_IdtaxaClassifier.Rdata" 
+        trainingSet= "ARMS_classifier_Final_IdtaxaClassifier.Rdata" 
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"

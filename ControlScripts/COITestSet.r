@@ -67,7 +67,7 @@
          # lower rate of occurrence of the potential error explained by
          # co-occurrence with the potential parent for considering error
          # state.
-        RatioType1= "avg" # options: "min" and "avg"
+        RatioType1= "min" # options: "min" and "avg"
         #sets whether a potential error must have lower
         #  abundance than the parent in all samples ‘min’ (default), or
         #  if an error just needs to have lower abundance on average
@@ -90,7 +90,7 @@
             # number of threads available  
 
     # lulu settings2
-        MatchRate2=90 #as a %, default 84
+        MatchRate2=84 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
         MinRelativeCo2= 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
@@ -125,14 +125,13 @@
                     #desiredranks<-c("rootrank", "kingdom", "division", "phylum", "class", "order", "family", "genus")
                 #GTDB 16s
                     #desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")
-        trainingSet= "ARMS_classifier_Final_IdtaxaClassifier.Rdata" 
+        trainingSet= "ARMS_classifier_SubsampleTerrestrial_Final_IdtaxaClassifier.Rdata"
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
         threshold=40
             # %age confidence of assignment required to record assignment
             #30=low confidence, 40=moderate, 50 = high, 60= very high
-
 
     #BLAST
         Blast= "Yes" 
@@ -146,6 +145,3 @@
 
 # run pipeline
     source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLCLA_Pipeline.R"))
-
-
-

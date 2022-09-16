@@ -61,7 +61,7 @@
             # to be reverse complemented and then merged into the matching sample containing the forward orientated sequences.
  
     # lulu settings1
-        MatchRate1=97 #as a %, default 84
+        MatchRate1=90 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
         MinRelativeCo1= 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
@@ -133,6 +133,16 @@
         threshold=40 
             # %age confidence of assignment required to record assignment
             #30=low confidence, 40=moderate, 50 = high, 60= very high
+
+    #BLAST
+        Blast= "No" 
+            #run blast or not, "Yes" to run it!
+        dbname= "MidoriBiocodeBlastDB" 
+            # name of the blast db
+        assignmentThresholds=c(0, 0, 0, 85, 90, 95, 98)
+            #similarity thresholds at which blast assignments should be made. 
+            # read from top rank to bottom rank. Requires a value for each rank in dataset.
+        
 
 # run pipeline
     source(file.path(path, "BioinformaticPipeline", "Pipeline", "CDLCLA_Pipeline.R"))

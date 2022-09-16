@@ -2,7 +2,7 @@
 
     #cluster settings
         #on HPC?
-        HPC<-FALSE
+        HPC<-TRUE
         if (HPC==TRUE)   {setwd("/rds/general/user/jcw120/home/BioinformaticPipeline_Env")} #necessary as it appears different job classes have different WDs.
 
         #CRAN mirror
@@ -10,9 +10,12 @@
             r["CRAN"] = "http://cran.us.r-project.org"
             options(repos = r)
 
+
+
     # general settings
-        #path <-"../BioinformaticPipeline_Env" # HPC
-        path <-"../../BioinformaticPipeline_Env" #for personal machine
+        path <-"../BioinformaticPipeline_Env" # HPC
+        #path <-"../../BioinformaticPipeline_Env" #for personal machine
+
 
             # this should be the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
@@ -20,7 +23,7 @@
                 # ReferenceLibraries - fill this file with your taxonomic reference library formatted either as i) ... or ii) ...
                 # IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
                 # Results - this is where final results will be saved
-        dataname="16s_test"
+        dataname="Dita2017-18_16s"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.
         multithread=TRUE
@@ -31,13 +34,15 @@
             # either TRUE or FALSE: determines whether cutadapt is run
         FWD ="ACCTGCGGARGGATCA"
             ## CHANGE ME to your forward primer sequence
-        REV = "GAGATCCRTTGYTRAAAGTT",  
+        REV = "GAGATCCRTTGYTRAAAGTT"
             ## CHANGE ME...
 
     # DADA2 settings
-        truncLen=c(150,150)
+        NumberOfRuns<-8
+            #Number of sequencing runs used to generate the data for this experiment, e.g. 1 or 2
+        truncLen=list(c(145,145), c(145,145), c(145,145), c(145,145), c(145,145), c(145,145), c(145,145), c(145,145))
             #the length at which the sequences should be truncated (forward and reverse)
-        trimLeft=c(0,0)
+        trimLeft=list(c(0,0), c(0,0), c(0,0), c(0,0), c(0,0), c(0,0), c(0,0) , c(0,0))
             # the # of bases to remove from the start of the sequences
         maxN=0
             # after truncation seqs with more than this number of Ns are discarded (DADA2 does not allow Ns)
@@ -87,18 +92,18 @@
             #number of base differences at which swarm clustering will be performed (1=default)                               
         SimilarityThreshold = 0.97
             #%age similarity at which to cluster sequences as a decimal
-        threads=4
-            # number of threads available                  
+        threads=32
+            # number of threads available          
 
-    # lulu settings2
+    # lulu settings
         MatchRate2=84 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
-        MinRelativeCo2= 0.95 #as a decimal, default 0.95
+        MinRelativeCo2 = 0.95 #as a decimal, default 0.95
         #minimum_relative_cooccurence: minimum co-occurrence rate – i.e. the
          # lower rate of occurrence of the potential error explained by
          # co-occurrence with the potential parent for considering error
          # state.
-        RatioType2= "min" # options: "min" and "avg"
+        RatioType2 = "min" # options: "min" and "avg"
         #sets whether a potential error must have lower
         #  abundance than the parent in all samples ‘min’ (default), or
         #  if an error just needs to have lower abundance on average
@@ -107,8 +112,8 @@
         #  designated errors. This option was introduced to make it
         #  possible to account for non-sufficiently clustered
         #  intraspecific variation, but is not generally recommended, as
-        #  it will also increase the potential of cluster
-        #  well-separated, but co-occuring, sequence similar species.
+        #  it will also increase the potential of clustering
+        #  well-separated, but co-occuring, sequence similar species. 
 
     # IDTAXA settings
         Type ="Assign"  
@@ -131,16 +136,16 @@
             #ref library to load if loading
         SeqsToAssign ="ESVs"
             #whether to assign to "ESVs", "OTUs", or "cOTUs"
-        threshold=40
+        threshold=40 
             # %age confidence of assignment required to record assignment
             #30=low confidence, 40=moderate, 50 = high, 60= very high
 
     #BLAST
         Blast= "No" 
             #run blast or not, "Yes" to run it!
-        dbname= "" 
-            # name of the blast db
-        assignmentThresholds=c(0, 0, 0, 0, 0, 0, 0)
+        dbname= "MidoriBiocodeBlastDB" 
+            # name of the blast db (unsure what it is fpr silva)
+        assignmentThresholds=c(0, 0, 0, 0, 0, 80, 80, 80, 80, 85, 85, 85, 85, 90, 90, 90, 95, 95, 95, 97)
             #similarity thresholds at which blast assignments should be made. 
             # read from top rank to bottom rank. Requires a value for each rank in dataset.
         
