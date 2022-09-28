@@ -67,17 +67,12 @@
                         seqtab <- seqtab[,nchar(colnames(seqtab)) %in% DesiredSequenceLengthRange]
                     }
                 
-
-                    #remove chimeras
-                    seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", 
-                                                        multithread=multithread, verbose=TRUE)
-
                     #make sequence length distribution table
-                    SeqLengthDist<-table(nchar(getSequences(seqtab.nochim )))
+                    SeqLengthDist<-table(nchar(getSequences(seqtab )))
 
                     #create read tracking table 
-                    track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN), rowSums(seqtab.nochim)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
-                    colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+                    track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
+                    colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged")
                     rownames(track) <- SampleNames
                     RunDadaTables[[paste0("Run", Run)]]<-track
 
@@ -91,7 +86,7 @@
                     RunDadaPlots[[Run]][[6]]<-plotErrors(errR, nominalQ=TRUE)
 
                     #create main output of ESVtable    
-                    ESVtable<-seqtab.nochim
+                    ESVtable<-seqtab
 
                     # standardise orientations if each sample consisted of FO_R1, FO_R2, RO_R1, RO_R2 (i.e read were in mixed orientations)
                     if (MixedOrientation) {
@@ -123,7 +118,7 @@
 
             #merge runs
             if (NumberOfRuns>1) {
-                ESVtable <- mergeSequenceTables(tables=RunESVtables, repeats="sum") %>% collapseNoMismatch # merge all sequence tables and combine sequences of different lengths with all matching bases
+                ESVtable <- mergeSequenceTables(tables=RunESVtables, repeats="sum") #%>% collapseNoMismatch # merge all sequence tables and combine sequences of different lengths with all matching bases
                 DadaPlots<-unlist(RunDadaPlots, recursive=FALSE)
                 DadaTables<-do.call("rbind", RunDadaTables)
                 SeqLengthDist<-table(nchar(getSequences(ESVtable)))
@@ -134,6 +129,18 @@
                 DadaTables<-RunDadaTables[[1]]
                 SeqLengthDist<-table(nchar(getSequences(ESVtable)))
             }
+
+            #post merging chimera removal
+                ESVtable<- removeBimeraDenovo(ESVtable, method="consensus", 
+                                                multithread=multithread, verbose=TRUE)
+                #add chimera removal tracking colunm to table
+                    DadaTables<-DadaTables%>%  
+                        as.data.frame %>% 
+                        rownames_to_column %>%
+                        as_tibble %>%
+                        left_join(.,rowSums(ESVtable) %>% as.data.frame %>% rownames_to_column) %>%
+                        rename("non-chimeric, post-run merging (and duplicate sample merging)" = ".") %>%
+                        arrange(rowname)
 
             #format ESV data 
             ESVtable<-t(ESVtable) # make samples columns
