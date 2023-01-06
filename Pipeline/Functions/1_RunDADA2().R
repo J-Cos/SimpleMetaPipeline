@@ -39,7 +39,8 @@
 
 
                     # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
-                    SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1)
+                    SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1) %>%
+                                    paste0(.,"__Run", Run)
                     
                     # Create paths for filtered outputs
                     filtFs<-createOutputFilePaths(suffix="_F_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
@@ -61,6 +62,9 @@
 
                     #make sequence table
                     seqtab <- makeSequenceTable(mergers)
+
+                    #append run number to sample names to enable differentiation of samples included in multiple runs
+                    row.names(seqtab)<-SampleNames
 
                     #cut to specific length if needed
                     if (!is.null(DesiredSequenceLengthRange)) {
