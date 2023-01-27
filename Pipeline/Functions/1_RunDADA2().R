@@ -50,15 +50,21 @@
                     out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=truncLen[[Run]],
                                         trimLeft=trimLeft[[Run]], maxN=maxN, maxEE=maxEE, truncQ=truncQ, 
                                         rm.phix=TRUE, compress=TRUE, multithread=multithread, verbose=TRUE) 
+                    print("filterAndTrim Complete")
                     errF <- learnErrors(filtFs, multithread=multithread)
+                    print("learnErrors Forwards Complete")
                     errR <- learnErrors(filtRs, multithread=multithread)
+                    print("learnErrors Reverses Complete")
 
                     #denoise
                     dadaFs <- dada(filtFs, err=errF, multithread=multithread,pool=pool)
+                    print("denoise Forwards Complete")
                     dadaRs <- dada(filtRs, err=errR, multithread=multithread,pool=pool)
+                    print("denoise Reverses Complete")
 
                     #merge
                     mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE, minOverlap=5)
+                    print("merging Complete")
 
                     #make sequence table
                     seqtab <- makeSequenceTable(mergers)
