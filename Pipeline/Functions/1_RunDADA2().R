@@ -144,12 +144,20 @@
                 ESVtable<- removeBimeraDenovo(ESVtable, method="consensus", 
                                                 multithread=multithread, verbose=TRUE)
                 #add chimera removal tracking colunm to table
+
+                    chimericData<-rowSums(ESVtable) %>% 
+                        as.data.frame %>% 
+                        rownames_to_column("rowname_for_merging")%>%
+                        rename("non-chimeric, applied post reorientation and merging of FO and RO" = ".") 
+
                     DadaTables<-DadaTables%>%  
                         as.data.frame %>% 
                         rownames_to_column %>%
                         as_tibble %>%
-                        left_join(.,rowSums(ESVtable) %>% as.data.frame %>% rownames_to_column) %>%
-                        rename("non-chimeric, post-run merging (and duplicate sample merging)" = ".") %>%
+                        mutate(rowname_for_merging=str_replace(rowname, "_FO","")) %>%
+                        mutate(rowname_for_merging=str_replace(rowname_for_merging, "_RO","")) %>% 
+                        left_join(.,chimericData) %>%
+                        select(!rowname_for_merging) %>%
                         arrange(rowname)
 
             #format ESV data 
