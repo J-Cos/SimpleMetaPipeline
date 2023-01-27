@@ -2,7 +2,8 @@
 
 #expects classifier trained with seq names in following format, number of ranks can vary: "Root; Arthropoda; Arachnida; Araneae; Uloboridae; Zosis; geniculata" 
 
-RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=10000) {
+RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=10000, parallel=FALSE) {
+    
     if (Type == "Assign") {
         #SeqsToAssign should modify which seqs are selected here
             if (SeqsToAssign=="ESVs"){
@@ -21,32 +22,49 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
         #load the specified trainingset
         load(file.path(path, "Data", "Classifiers", trainingSet))
 
-        #first check if any chunks completed in a previous exited run, if so load these and append  additional chunks to this object
-            if(file.exists(file=file.path(path, "IntermediateOutputs", paste0(dataname,"_ids.RDS")))) {
-                ids<-readRDS(file=file.path(path, "IntermediateOutputs", paste0(dataname,"_ids.RDS") ))
-            } else {
-                ids<-list()
-            }
-
         # splitquery sequences into chunks
             dna_list<-split(dna, ceiling(seq_along(dna)/QuerySequenceChunkSize))
             print(paste0("Query sequences split into ", length(dna_list), " chunks of ", QuerySequenceChunkSize, " sequences"))
             print(paste0("Starting classification at chunk ", length(ids)+1))
-            for (chunkNumber in (length(ids)+1):length(dna_list)) {
-                #classify
-                ids[[chunkNumber]] <- IdTaxa(dna_list[[chunkNumber]],
-                                        trainingSet,
-                                        type="extended",
-                                        strand="both",
-                                        threshold=threshold,
-                                        processors=NULL)
-                print(paste0("Chunk ", chunkNumber, " complete"))
-                CacheOutput(ids)
-            }
-            print(paste0("All chunks complete"))
-            ids<-do.call(c, ids)
-            print(paste0("All chunks merged"))
-
+        
+        if (parallel){
+            # parallel
+                ids<-parallel::mclapply(dna_list, mc.cores=24, function(dnachunk){
+                                                        IdTaxa(dnachunk,
+                                                                trainingSet,
+                                                                type="extended",
+                                                                strand="both",
+                                                                threshold=threshold,
+                                                                processors=10)
+                                                        }
+                                    )
+                print(paste0("All chunks complete"))
+                ids<-do.call(c, ids)
+                print(paste0("All chunks merged"))
+        } else {
+            #linear
+                #first check if any chunks completed in a previous exited run, if so load these and append  additional chunks to this object
+                    if(file.exists(file=file.path(path, "IntermediateOutputs", paste0(dataname,"_ids.RDS")))) {
+                        ids<-readRDS(file=file.path(path, "IntermediateOutputs", paste0(dataname,"_ids.RDS") ))
+                    } else {
+                        ids<-list()
+                    }
+                #loop over incomplete chunks
+                for (chunkNumber in (length(ids)+1):length(dna_list)) {
+                    #classify
+                    ids[[chunkNumber]] <- IdTaxa(dna_list[[chunkNumber]],
+                                            trainingSet,
+                                            type="extended",
+                                            strand="both",
+                                            threshold=threshold,
+                                            processors=NULL)
+                    print(paste0("Chunk ", chunkNumber, " complete"))
+                    CacheOutput(ids)
+                }
+                print(paste0("All chunks complete"))
+                ids<-do.call(c, ids)
+                print(paste0("All chunks merged"))
+        }
 
         #if rank in ids
             if ('rank' %in% colnames(as.data.frame(ids[1][[1]]))) {
