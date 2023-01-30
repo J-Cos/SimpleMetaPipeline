@@ -160,7 +160,7 @@
             #load reference library
 
         # 6.1 Run Module
-                IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold)
+                IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold, parallel=parallel)
                 
         # 6.2 cache Output
             CacheOutput(IdtaxaOutput)

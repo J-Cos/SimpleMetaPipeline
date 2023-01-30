@@ -2,7 +2,7 @@
 
 #expects classifier trained with seq names in following format, number of ranks can vary: "Root; Arthropoda; Arachnida; Araneae; Uloboridae; Zosis; geniculata" 
 
-RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=10000, parallel=FALSE) {
+RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=3333, parallel=FALSE) {
     
     if (Type == "Assign") {
         #SeqsToAssign should modify which seqs are selected here
@@ -25,10 +25,11 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
         # splitquery sequences into chunks
             dna_list<-split(dna, ceiling(seq_along(dna)/QuerySequenceChunkSize))
             print(paste0("Query sequences split into ", length(dna_list), " chunks of ", QuerySequenceChunkSize, " sequences"))
-            print(paste0("Starting classification at chunk ", length(ids)+1))
         
         if (parallel){
             # parallel
+                print("Starting parallel classification")
+
                 ids<-parallel::mclapply(dna_list, mc.cores=24, function(dnachunk){
                                                         IdTaxa(dnachunk,
                                                                 trainingSet,
@@ -38,9 +39,6 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
                                                                 processors=10)
                                                         }
                                     )
-                print(paste0("All chunks complete"))
-                ids<-do.call(c, ids)
-                print(paste0("All chunks merged"))
         } else {
             #linear
                 #first check if any chunks completed in a previous exited run, if so load these and append  additional chunks to this object
@@ -49,6 +47,9 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
                     } else {
                         ids<-list()
                     }
+                
+                print(paste0("Starting linear classification at chunk ", length(ids)+1))
+
                 #loop over incomplete chunks
                 for (chunkNumber in (length(ids)+1):length(dna_list)) {
                     #classify
@@ -61,10 +62,11 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
                     print(paste0("Chunk ", chunkNumber, " complete"))
                     CacheOutput(ids)
                 }
-                print(paste0("All chunks complete"))
-                ids<-do.call(c, ids)
-                print(paste0("All chunks merged"))
         }
+                
+        print(paste0("All chunks complete"))
+        ids<-do.call(c, ids)
+        print(paste0("All chunks merged"))
 
         #if rank in ids
             if ('rank' %in% colnames(as.data.frame(ids[1][[1]]))) {
