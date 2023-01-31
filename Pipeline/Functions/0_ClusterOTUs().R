@@ -4,7 +4,8 @@ ClusterOTUs<-function(linkage, #either complete (vsearch) or single (swarm)
                     TableToMergeTo,
                     HPC,
                     SimilarityThreshold,
-                    clustering 
+                    clustering,
+                    multithread=multithread
                         ) {
 
     if (linkage=="single") {
@@ -20,7 +21,8 @@ ClusterOTUs<-function(linkage, #either complete (vsearch) or single (swarm)
 
         ClusterOutput<-RunVSEARCH(SimilarityThreshold=SimilarityThreshold, 
                 clustering=clustering, 
-                TableToMergeTo=TableToMergeTo)
+                TableToMergeTo=TableToMergeTo, 
+                multithread=multithread)
 
     } else { 
         print("unknown linkage specified. Must be either 'single' (swarm) or 'complete' (vsearch) ")

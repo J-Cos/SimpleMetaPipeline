@@ -2,7 +2,7 @@
 
 #expects classifier trained with seq names in following format, number of ranks can vary: "Root; Arthropoda; Arachnida; Araneae; Uloboridae; Zosis; geniculata" 
 
-RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=3333, parallel=FALSE) {
+RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=500, parallel=FALSE, multithread=multithread) {
     
     if (Type == "Assign") {
         #SeqsToAssign should modify which seqs are selected here
@@ -26,17 +26,24 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
             dna_list<-split(dna, ceiling(seq_along(dna)/QuerySequenceChunkSize))
             print(paste0("Query sequences split into ", length(dna_list), " chunks of ", QuerySequenceChunkSize, " sequences"))
         
+        if (multithread==TRUE){
+            mc.cores<-250
+        } else {
+            mc.cores<-multithread
+        }
+
+
         if (parallel){
             # parallel
-                print("Starting parallel classification")
+                print(paste0("Starting parallel classification with ", as.integer(mc.cores), " cores"))
 
-                ids<-parallel::mclapply(dna_list, mc.cores=24, function(dnachunk){
+                ids<-parallel::mclapply(dna_list, mc.cores=mc.cores, function(dnachunk){
                                                         IdTaxa(dnachunk,
                                                                 trainingSet,
                                                                 type="extended",
                                                                 strand="both",
                                                                 threshold=threshold,
-                                                                processors=10)
+                                                                processors=1)
                                                         }
                                     )
         } else {

@@ -1,4 +1,10 @@
-RunVSEARCH<-function(SimilarityThreshold=0.97, clustering="curatedESV", TableToMergeTo=LuluOutput1) { 
+RunVSEARCH<-function(SimilarityThreshold=0.97, clustering="curatedESV", TableToMergeTo=LuluOutput1, multithread=multithread) { 
+
+    if (multithread==TRUE){
+        mc.cores<-250
+    } else {
+        mc.cores<-multithread
+    }
 
     #get representative seqs for clustering level
     if (clustering=="ESV") {
@@ -18,8 +24,9 @@ RunVSEARCH<-function(SimilarityThreshold=0.97, clustering="curatedESV", TableToM
                             " --centroids ", file.path(path,"IntermediateOutputs","centroidsequences.fasta"),   
                             " --clusterout_id ",
                             " --clusters ", file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchOTUs"), "Cluster"),
-                                " --uc ", file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchdata")),
-                            "   --id ", SimilarityThreshold,
+                            " --uc ", file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchdata")),
+                            " --threads ", mc.cores,
+                            " --id ", SimilarityThreshold,
                             " --relabel OTU   ")) 
 
     vsearchclusters<-as.data.frame(read.table(file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchdata"))))

@@ -94,7 +94,7 @@
 
             OtuTableForLulu<-CreateOtuTableForLulu(Input=DadaOutput$SeqDataTable, clustering = "ESV")
 
-            MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate1, clustering="ESV", HPC=HPC)
+            MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate1, clustering="ESV", HPC=HPC, multithread=multithread)
         
         # 3.1 Run Module
             LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate1, MinRelativeCo=MinRelativeCo1, RatioType=RatioType1, clustering="ESV") # inputs are Otutable and matchlist created previously
@@ -120,7 +120,8 @@
                                         TableToMergeTo=LuluOutput1,
                                         clustering="ESV",
                                         HPC=HPC,
-                                        SimilarityThreshold=SimilarityThreshold)
+                                        SimilarityThreshold=SimilarityThreshold,
+                                        multithread=multithread)
 
             #inspect outputs
                 #ClusterOutput
@@ -138,7 +139,7 @@
 
             OtuTableForLulu<-CreateOtuTableForLulu(Input=ClusterOutput, clustering="OTU")
 
-            MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate2, clustering="OTU", HPC=HPC)
+            MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate2, clustering="OTU", HPC=HPC, multithread=multithread)
         
         # 5.1 Run Module
             LuluOutput2<-RunLULU(TableToMergeTo=ClusterOutput, MatchRate=MatchRate2, MinRelativeCo=MinRelativeCo2, RatioType=RatioType2, clustering="OTU") # inputs are Otutable and matchlist created previously
@@ -160,7 +161,7 @@
             #load reference library
 
         # 6.1 Run Module
-                IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold, parallel=parallel)
+                IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold, parallel=parallel, multithread=multithread)
                 
         # 6.2 cache Output
             CacheOutput(IdtaxaOutput)

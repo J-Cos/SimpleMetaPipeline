@@ -1,7 +1,13 @@
 
-CreateMatchlistForLulu<-function(Input, MatchRate, clustering, HPC) {
+CreateMatchlistForLulu<-function(Input, MatchRate, clustering, HPC, multithread=multithread) {
             #get clustering labelled fasta for lulu
             
+            if (multithread==TRUE){
+                mc.cores<-250
+            } else {
+                mc.cores<-multithread
+            }
+
             if (clustering=="ESV") {
                 seqs<-Input
             } else if (clustering == "OTU"){
@@ -22,6 +28,7 @@ CreateMatchlistForLulu<-function(Input, MatchRate, clustering, HPC) {
             } else if (HPC==TRUE) { #slighlty different vsearch behaviour on cluster - not sure why - maxhits 10 vs maxhits 0
                 system(command= paste0("cd ", file.path(path, "IntermediateOutputs"), "&& vsearch --usearch_global ", 
                         sequencesfile ," --db ", sequencesfile, 
+                        " --threads ", mc.cores,
                         " --self --id .", MatchRate," --iddef 1 --userout ", dataname ,"_", clustering ,"_match_list.txt -userfields query+target+id --maxaccepts 0 --maxrejects 0 --query_cov .9 --maxhits 0"))
             }
 
