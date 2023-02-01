@@ -72,7 +72,7 @@ RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign
         }
                 
         print(paste0("All chunks complete"))
-        ids<-do.call(c, ids)
+        ids<-purrr::reduce(ids, c)
         print(paste0("All chunks merged"))
 
         #if rank in ids
