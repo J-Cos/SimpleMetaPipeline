@@ -21,7 +21,7 @@ RunVSEARCH<-function(SimilarityThreshold=0.97, clustering="curatedESV", TableToM
     system(command= paste0("mkdir -p ", file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchOTUs")),
                             " && vsearch --cluster_size ",
                             file.path(path,"IntermediateOutputs",sequencesfile),
-                            " --centroids ", file.path(path,"IntermediateOutputs","centroidsequences.fasta"),   
+                            " --centroids ", file.path(path,"IntermediateOutputs",paste0(dataname , "_centroidsequences.fasta")),   
                             " --clusterout_id ",
                             " --clusters ", file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchOTUs"), "Cluster"),
                             " --uc ", file.path(path,"IntermediateOutputs", paste0(dataname , "_vsearchdata")),
