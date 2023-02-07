@@ -85,6 +85,12 @@
 
             BarcodePrimers<-c(FO1, RO1)
 
+            #extract barcode primer lengths to specify that compelte overlap is required in demultiplexing
+            if (length(unique(nchar(BarcodePrimers)))!=1) {
+                print(paste0("ERROR: Multiple BarcodePrimer lengths detected. As a result minimum overlap in demultiplexing cannot be set to a single length suitable for all barcode primers. Please note that this is a required to work around as anchoring adapters (using e.g. '-g ^file:pathtofastq' notation) appears impossible through an R system() command "))
+            } else {
+                BarcodePrimerLength<-unique(nchar(BarcodePrimers))
+            }
 
 
             # Create paths for barcodes fastas
@@ -98,13 +104,13 @@
 
             #now run cutadapt
             system2( "cutadapt", args= c( "-e", 0, "--no-indels",  "--minimum-length", 1,  # options (0% error rate, no insertion/deletions, and zero length seqs discarded)
+                                        "--overlap", BarcodePrimerLength, #overlap equal to length of barcodes + primers 
                                         "-g", paste0("file:",path_barcodePrimerFastas),  "-G", paste0("file:",path_barcodePrimerFastas),       #barcodes
                                         "-o",   paste0(path,"/../../FASTQs/CrossPacific_COI/",Run, "/{name}_R1_001.fastq.gz"), "-p", paste0(path,"/../../FASTQs/CrossPacific_COI/",Run, "/{name}_R2_001.fastq.gz"),
                                         "-j", Ncores,
                                         path_filtered[[1]] ,  path_filtered[[2]]                       #inputs
                                     )
             ) 
-            
 
             print(paste0("Run ", r, ": Adapter ", a, " cutadapt complete"))
             print(paste0(AdapterBarcodesFile ," matched with ", AdapterFastqs))
