@@ -62,8 +62,10 @@
             Barcodes_df<-read.table(AdapterBarcodesFile)
             colnames(Barcodes_df)<-c("Sample", "Barcode")
 
-            # Create paths for prefiltered fastqs
+            # Create paths for prefiltered fastqs in ephemeral directory 
             path_filtered<-str_replace(AdapterFastqs, "RunsSplitByAdapter", "RunsSplitByAdapter_prefiltered")
+            path_filtered<-str_replace(AdapterFastqs, "home", "ephemeral")
+
 
             #prefilter fastqs
             #The presence of ambiguous bases (Ns) in the sequencing reads makes accurate mapping of short primer sequences difficult. Next we are going to “pre-filter” the sequences just to remove those with Ns, but perform no other filtering.
