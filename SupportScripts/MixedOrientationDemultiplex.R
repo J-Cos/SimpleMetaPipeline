@@ -105,6 +105,9 @@
                                     )
             ) 
             
+
             print(paste0("Run ", r, ": Adapter ", a, " cutadapt complete"))
+            print(paste0(AdapterBarcodesFile ," matched with ", AdapterFastqs))
+
         }
     }
