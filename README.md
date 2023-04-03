@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/419331038.svg)](https://zenodo.org/badge/latestdoi/419331038)
+
 # BioinformaticPipeline
  General Bioinformatic Pipeline, and parameter sets recorded for specific datasets.
 
