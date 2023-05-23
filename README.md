@@ -34,6 +34,7 @@ installed software - you must install these yourself and ensure they are in usr/
 - vsearch
 - swarm v2
 - cutadapt
+- BLAST
     
 R Packages - will be installed automatically in the pipeline
 
