@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/419331038.svg)](https://zenodo.org/badge/latestdoi/419331038)
 
-# BioinformaticPipeline
+# SimplePipeline
  General Bioinformatic Pipeline, and parameter sets recorded for specific datasets.
 
 # 1) directory structure
@@ -34,6 +34,7 @@ installed software - you must install these yourself and ensure they are in usr/
 - vsearch
 - swarm v2
 - cutadapt
+- BLAST
     
 R Packages - will be installed automatically in the pipeline
 
