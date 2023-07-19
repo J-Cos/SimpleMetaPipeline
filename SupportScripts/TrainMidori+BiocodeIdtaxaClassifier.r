@@ -31,21 +31,22 @@
 #3. parameters
     path<-"../BioinformaticPipeline_Env"
     biocodeVersion<-"JAN21"
-    midoriVersion="248"
+    midoriVersion="256"
     libraryname<-"ARMS_classifier"
-    maxGroupSize<-Inf
+    maxGroupSize<-3
+    maxIterations<-3
     LargeTerrestrialOrders<-c("Araneae", "Hemiptera", "Coleoptera", "Hymenoptera", "Lepidoptera", "Diptera")
     LargestMarineOrder<-"Decapoda"
     subsampleLargeTerrestrialOrders<-"SubsampleTerrestrial" # either 1) "SubsampleTerrestrial" or 2) ""
 
     BiocodeFasta<-paste0("BIOCODE_",biocodeVersion,"_ER_edit.fasta")
-    MidoriFasta=paste0("MIDORI_UNIQ_NUC_SP_GB", midoriVersion,"_CO1_RDP.fasta")
+    MidoriFasta=paste0("MIDORI2_UNIQ_NUC_SP_GB", midoriVersion,"_CO1_RDP.fasta")
 
 # Functions
         #function_files<-list.files(file.path(path, "BioinformaticPipeline", "SupportFunctions"))
         #sapply(file.path(path, "BioinformaticPipeline",  "SupportFunctions" ,function_files),source)
 
-    TrainIdtaxaClassifier<-function(seqs, taxid=NULL, maxGroupSize, maxIterations, allowGroupRemoval=FALSE) {
+    TrainIdtaxaClassifier<-function(seqs, taxid=NULL, maxGroupSize, maxIterations=1, allowGroupRemoval=TRUE, probSeqsPrev) {
         
         #get some group objects to manipulate
         groups<-names(seqs)
@@ -63,20 +64,16 @@
                             maxGroupSize)
             remove[index[-keep]] <- TRUE   
         }
+        print(paste0(sum(remove), " sequences removed based on max group size"))
 
         #classifier training loop
-        probSeqsPrev <- integer() # suspected problem sequences from prior iteration
         for (i in seq_len(maxIterations)) {
-            cat("Training iteration: ", i, "\n", sep="")
             
             # train the classifier
             trainingSet <- LearnTaxa(train=seqs[!remove],
                                     taxonomy=names(seqs)[!remove],
                                     verbose=TRUE)
             
-            #something prevents this line working on the HPC - it does work locally
-            #save(trainingSet, file=file.path(parent.frame()$path, "Data", "Classifiers", paste0(parent.frame()$libraryname, "_IdtaxaClassifier_Iteration:", i, ".Rdata")))
-                                    
             # look for problem sequences
             probSeqs <- trainingSet$problemSequences$Index
             if (length(probSeqs)==0) {
@@ -86,25 +83,27 @@
                 cat("Iterations converged.\n")
                 break
             }
-            if (i==maxIterations)
-                break
-            probSeqsPrev <- probSeqs
+
             
             # remove any problem sequences
             index <- which(!remove)[probSeqs]
             remove[index] <- TRUE # remove all problem sequences
+            
+            #test if any rgoups entirely removed
+            missing <- !(u_groups %in% groups[!remove])
+            missing <- u_groups[missing]
             if (!allowGroupRemoval) {
                 # replace any removed groups
-                missing <- !(u_groups %in% groups[!remove])
-                missing <- u_groups[missing]
                 if (length(missing) > 0) {
                     index <- index[groups[index] %in% missing]
                     remove[index] <- FALSE # don't remove
                 }
+            } else if (allowGroupRemoval){
+                print(paste0(length(missing), " groups removed"))
             }
         }
-
-        return(list(trainingSet, probSeqs))
+                
+        return(list("trainingSet"=trainingSet, "seqs_filtered"=seqs[!remove], "probSeqs"=probSeqs))
     }
     ReformatMidoriTaxa <- function(list_item) {
         string<-lapply(strsplit(list_item, split= "\t"), '[', 2)
@@ -139,58 +138,90 @@
         Tax_df<-plyr::ldply(splits, rbind )
         return(Tax_df)
     }
-
-#4. format inputs
-    #biocode
-        Bseqs <- readDNAStringSet(file.path(path, "Data", "Raw", BiocodeFasta) )
-        Btax<-as.list(names(Bseqs))
-        names(Bseqs)<-unlist(lapply(Btax, ReformatBiocodeTaxa))
-            print("Biocode seqs prepared")
-
-    #midori
-        Mseqs <- Biostrings::readDNAStringSet(file.path(path, "Data", "Raw", MidoriFasta))
-            #Mseqs <- Mseqs[sample(1:length(Mseqs), length(Bseqs))] #line for testing purposes
-        Mtax<-as.list(names(Mseqs))
-        names(Mseqs)<-unlist(lapply(Mtax, ReformatMidoriTaxa))
-                print("Midori names reformatted")
-
-    #combine midori and biocode
-        seqs<-c(Bseqs, Mseqs)
-
-    #format combined seqs
-        #sequence formatting
-        seqs <- RemoveGaps(seqs)
-            print("gaps removed")
-
-        seqs <- OrientNucleotides(seqs)
-            print("nucleotides reoriented")
-
-    # Checkpoint - save seqs to output for inspection
-        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_m", midoriVersion, "_b", biocodeVersion, "_combinedSeqs.fasta")), format="fasta", width=10000)
-
-#5. subsample large terrestrial orders
-    if (subsampleLargeTerrestrialOrders=="SubsampleTerrestrial"){
-
-        Tax_df<-MakeTaxDf(seqs=seqs)       
-
-        SizeOfLargestMarineOrder<-sum(Tax_df[,5] == LargestMarineOrder, na.rm=TRUE) # na removal discounts seqs of unknown order (e.g. a sequence only labelled "arthropoda")
-
-        TerrestrialSeqsToRemove<-c()
-        for (i in 1: length(LargeTerrestrialOrders)){
-            TerrestrialOrderSeqs<-which(Tax_df[,5] == LargeTerrestrialOrders[i])
-            TerrestrialOrderSeqsToRemove<-sample(TerrestrialOrderSeqs, length(TerrestrialOrderSeqs)-SizeOfLargestMarineOrder, replace=FALSE)
-            TerrestrialSeqsToRemove<-c(TerrestrialSeqsToRemove, TerrestrialOrderSeqsToRemove)
+    CheckIfPreviousIncompleteRunExists<-function() {
+        ClassifierOutput<-NULL
+        for (iter in (maxIterations-1):1){
+            PreviousIteration<-try(readRDS(file.path(path, "Data", "Classifiers", paste0(libraryname, "_IdtaxaClassifier_Iteration_", iter, ".RDS"))), silent=TRUE)
+            if(! "try-error" %in% class(PreviousIteration)){
+                ClassifierOutput<-PreviousIteration
+                break 
+            }
+            iter<-0
         }
-        seqs<-seqs[-TerrestrialSeqsToRemove,]
-
-    # Checkpoint - save seqs to output for inspection
-        writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_m", midoriVersion, "_b", biocodeVersion,  "_combinedSeqs.fasta")), format="fasta", width=10000)
-
+        return(list("ClassifierOutput" = ClassifierOutput, "iter"=iter))
     }
 
-#6. train classifier 
-    IdtaxaClassifierOutputs<-TrainIdtaxaClassifier(seqs=seqs, maxGroupSize=maxGroupSize, maxIterations=3)
+# CHECK IF A PREVIOUS INCOMPLETE RUN EXISTS
 
+    ClassifierOutput<-CheckIfPreviousIncompleteRunExists()
+    print(paste0("Starting at iteration ", ClassifierOutput[["iter"]]))
+
+    if(is.null(ClassifierOutput[["ClassifierOutput"]])){
+        #4. format inputs
+            #specify that no problem sequences are known
+                probSeqs<-integer()
+            #biocode
+                Bseqs <- readDNAStringSet(file.path(path, "Data", "Raw", BiocodeFasta) )
+                Btax<-as.list(names(Bseqs))
+                names(Bseqs)<-unlist(lapply(Btax, ReformatBiocodeTaxa))
+                    print("Biocode seqs prepared")
+
+            #midori
+                Mseqs <- Biostrings::readDNAStringSet(file.path(path, "Data", "Raw", MidoriFasta))
+                    #Mseqs <- Mseqs[sample(1:length(Mseqs), length(Bseqs))] #line for testing purposes
+                Mtax<-as.list(names(Mseqs))
+                names(Mseqs)<-unlist(lapply(Mtax, ReformatMidoriTaxa))
+                        print("Midori names reformatted")
+
+            #combine midori and biocode
+                seqs<-c(Bseqs, Mseqs)
+
+            #format combined seqs
+                #sequence formatting
+                seqs <- RemoveGaps(seqs)
+                    print("gaps removed")
+
+                seqs <- OrientNucleotides(seqs)
+                    print("nucleotides reoriented")
+
+            # Checkpoint - save seqs to output for inspection
+                writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname, "_m", midoriVersion, "_b", biocodeVersion, "_combinedSeqs.fasta")), format="fasta", width=10000)
+
+        #5. subsample large terrestrial orders
+            if (subsampleLargeTerrestrialOrders=="SubsampleTerrestrial"){
+
+                Tax_df<-MakeTaxDf(seqs=seqs)       
+
+                SizeOfLargestMarineOrder<-sum(Tax_df[,5] == LargestMarineOrder, na.rm=TRUE) # na removal discounts seqs of unknown order (e.g. a sequence only labelled "arthropoda")
+
+                TerrestrialSeqsToRemove<-c()
+                for (i in 1: length(LargeTerrestrialOrders)){
+                    TerrestrialOrderSeqs<-which(Tax_df[,5] == LargeTerrestrialOrders[i])
+                    TerrestrialOrderSeqsToRemove<-sample(TerrestrialOrderSeqs, length(TerrestrialOrderSeqs)-SizeOfLargestMarineOrder, replace=FALSE)
+                    TerrestrialSeqsToRemove<-c(TerrestrialSeqsToRemove, TerrestrialOrderSeqsToRemove)
+                }
+                seqs<-seqs[-TerrestrialSeqsToRemove,]
+
+            # Checkpoint - save seqs to output for inspection
+                writeXStringSet(seqs, file=file.path(path, "Data", "Classifiers", paste0(libraryname,"_",subsampleLargeTerrestrialOrders, "_m", midoriVersion, "_b", biocodeVersion,  "_combinedSeqs.fasta")), format="fasta", width=10000)
+
+            }
+    } else {
+        seqs<-ClassifierOutput[["ClassifierOutput"]][["seqs_filtered"]]
+        probSeqs<-ClassifierOutput[["ClassifierOutput"]][["probSeqs"]]
+    }
+
+#6. train classifier
+    for (iter in (ClassifierOutput[["iter"]]+1):maxIterations){
+        cat("Training iteration: ", iter, "\n", sep="")
+        IdtaxaClassifierOutputs<-TrainIdtaxaClassifier(seqs=seqs, maxGroupSize=maxGroupSize, probSeqsPrev=probSeqs)
+        saveRDS(IdtaxaClassifierOutputs, file=file.path(parent.frame()$path, "Data", "Classifiers", paste0(parent.frame()$libraryname, "_IdtaxaClassifier_Iteration_", iter, ".RDS")))
+        print(paste0(length(IdtaxaClassifierOutputs[["probSeqs"]]) , " problem sequences removed"))
+        print(paste0(length(IdtaxaClassifierOutputs[["seqs_filtered"]]), " sequences remaining"))
+        if (length(IdtaxaClassifierOutputs[["probSeqs"]])==0){break}
+        seqs<-IdtaxaClassifierOutputs[["seqs_filtered"]]
+        probSeqs<-IdtaxaClassifierOutputs[["probSeqs"]]
+    }   
 
 #7. save 
     trainingSet<-IdtaxaClassifierOutputs[[1]]
