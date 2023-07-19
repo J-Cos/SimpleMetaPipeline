@@ -75,7 +75,8 @@
                                     multithread=multithread,
                                     pool=pool,
                                     MixedOrientation=MixedOrientation,
-                                    NumberOfRuns=NumberOfRuns)
+                                    NumberOfRuns=NumberOfRuns,
+                                    Premerged=Premerged)
 
             #inspect outputs
                 #DadaOutput$SeqDataTable

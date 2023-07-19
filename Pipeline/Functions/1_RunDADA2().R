@@ -1,6 +1,6 @@
         RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), 
                             truncQ=2, DesiredSequenceLengthRange=NULL, dataname=NULL, multithread, pool,
-                            UseCutadapt=FALSE, MixedOrientation=FALSE, NumberOfRuns=1) {
+                            UseCutadapt=FALSE, MixedOrientation=FALSE, NumberOfRuns=1, Premerged=FALSE) {
             #stop function if necessary arguments blank                    
             if (is.null(truncLen) | is.null(trimLeft)) stop("You must specify truncLen and trimLeft")
 
@@ -27,44 +27,103 @@
 
                     print( paste0( "RUN ", Run))
 
-                    #get filenames of fastas from right folder depending on if cutadapt run
-                    if (UseCutadapt==FALSE) {
-                        # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
-                        fnFs<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern="_R1_001.fastq", full.names = TRUE))
-                        fnRs<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern="_R2_001.fastq", full.names = TRUE))
-                    } else if (UseCutadapt==TRUE) {
-                        fnFs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R1_001.fastq", full.names = TRUE))
-                        fnRs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R2_001.fastq", full.names = TRUE))
+                    if(!Premerged){
+
+                        #get filenames of fastas from right folder depending on if cutadapt run
+                        if (UseCutadapt==FALSE) {
+                            # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
+                            fnFs<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern="_R1_001.fastq", full.names = TRUE))
+                            fnRs<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern="_R2_001.fastq", full.names = TRUE))
+                        } else if (UseCutadapt==TRUE) {
+                            fnFs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R1_001.fastq", full.names = TRUE))
+                            fnRs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R2_001.fastq", full.names = TRUE))
+                        }
+
+                        # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
+                        SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1) %>%
+                                        paste0(.,"__Run", Run)
+                        
+                        # Create paths for filtered outputs
+                        filtFs<-createOutputFilePaths(suffix="_F_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
+                        filtRs<-createOutputFilePaths(suffix="_R_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
+
+                        #filter and trim
+                        out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=truncLen[[Run]],
+                                            trimLeft=trimLeft[[Run]], maxN=maxN, maxEE=maxEE, truncQ=truncQ, 
+                                            rm.phix=TRUE, compress=TRUE, multithread=multithread, verbose=TRUE) 
+                        print("filterAndTrim Complete")
+                        errF <- learnErrors(filtFs, multithread=multithread)
+                        print("learnErrors Forwards Complete")
+                        errR <- learnErrors(filtRs, multithread=multithread)
+                        print("learnErrors Reverses Complete")
+
+                        #denoise
+                        dadaFs <- dada(filtFs, err=errF, multithread=multithread,pool=pool)
+                        print("denoise Forwards Complete")
+                        dadaRs <- dada(filtRs, err=errR, multithread=multithread,pool=pool)
+                        print("denoise Reverses Complete")
+
+                        #merge
+                        mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE, minOverlap=5)
+                        print("merging Complete")
+
+                        #create dada plots
+                            RunDadaPlots[[Run]]<-list()
+                            RunDadaPlots[[Run]][[1]]<-plotQualityProfile(fnFs) #example
+                            RunDadaPlots[[Run]][[2]]<-plotQualityProfile(fnRs) #example
+                            RunDadaPlots[[Run]][[3]]<-plotQualityProfile(filtFs) #example
+                            RunDadaPlots[[Run]][[4]]<-plotQualityProfile(filtRs) #example
+                            RunDadaPlots[[Run]][[5]]<-plotErrors(errF, nominalQ=TRUE)
+                            RunDadaPlots[[Run]][[6]]<-plotErrors(errR, nominalQ=TRUE)
+
+                        #create read tracking table 
+                        track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
+                        colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged")
+
+                    } else if (Premerged){
+                        #get merged filenames
+                        fns<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern=".fastq", full.names = TRUE))
+
+                        # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
+                        SampleNames <- sapply(strsplit(basename(fns), ".fastq"), `[`, 1) %>%
+                                        paste0(.,"__Run", Run)
+
+                        # Create paths for filtered outputs
+                        filts<-createOutputFilePaths(suffix="_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
+
+                        #filter and trim
+                        out <- filterAndTrim(fns, filts, truncLen=truncLen[[Run]],
+                                            trimLeft=trimLeft[[Run]], maxN=maxN, maxEE=maxEE, truncQ=truncQ, 
+                                            rm.phix=TRUE, compress=TRUE, multithread=multithread, verbose=TRUE) 
+                        print("filterAndTrim Complete")
+
+                        err <- learnErrors(filts, multithread=multithread)
+                        print("learnErrors Complete")
+
+                        #inflate errors to deal with problems introduced to error scores by merging forward and reverse befoer running dada2
+                        inflatedErr<-inflateErr(err, 3)
+                        
+                        #denoise
+                        dada <- dada(filts, err=inflatedErr, multithread=multithread,pool=pool)
+                        print("denoise Complete")
+
+                        #rename to mergers to feed into next step making sequence table
+                        mergers <- dada    
+                                                
+                        #create dada plots
+                            RunDadaPlots[[Run]]<-list()
+                            RunDadaPlots[[Run]][[1]]<-plotQualityProfile(fns) #example
+                            RunDadaPlots[[Run]][[2]]<-plotQualityProfile(filts) #example
+                            RunDadaPlots[[Run]][[3]]<-plotErrors(inflatedErr, nominalQ=TRUE)
+
+                        #create read tracking table 
+                        track <- cbind(out, sapply(dada, getN)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
+                        colnames(track) <- c("input", "filtered", "denoised")
                     }
 
-
-                    # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
-                    SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1) %>%
-                                    paste0(.,"__Run", Run)
-                    
-                    # Create paths for filtered outputs
-                    filtFs<-createOutputFilePaths(suffix="_F_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
-                    filtRs<-createOutputFilePaths(suffix="_R_filt.fastq.gz", outputDirectoryPrefix="_filteredsequences")
-
-                    #filter and trim
-                    out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=truncLen[[Run]],
-                                        trimLeft=trimLeft[[Run]], maxN=maxN, maxEE=maxEE, truncQ=truncQ, 
-                                        rm.phix=TRUE, compress=TRUE, multithread=multithread, verbose=TRUE) 
-                    print("filterAndTrim Complete")
-                    errF <- learnErrors(filtFs, multithread=multithread)
-                    print("learnErrors Forwards Complete")
-                    errR <- learnErrors(filtRs, multithread=multithread)
-                    print("learnErrors Reverses Complete")
-
-                    #denoise
-                    dadaFs <- dada(filtFs, err=errF, multithread=multithread,pool=pool)
-                    print("denoise Forwards Complete")
-                    dadaRs <- dada(filtRs, err=errR, multithread=multithread,pool=pool)
-                    print("denoise Reverses Complete")
-
-                    #merge
-                    mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs, verbose=TRUE, minOverlap=5)
-                    print("merging Complete")
+                    #finish read tracking table (these steps not specific to premerged or non-premerged)
+                    rownames(track) <- SampleNames
+                    RunDadaTables[[paste0("Run", Run)]]<-track
 
                     #make sequence table
                     seqtab <- makeSequenceTable(mergers)
@@ -79,21 +138,6 @@
                 
                     #make sequence length distribution table
                     SeqLengthDist<-table(nchar(getSequences(seqtab )))
-
-                    #create read tracking table 
-                    track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
-                    colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged")
-                    rownames(track) <- SampleNames
-                    RunDadaTables[[paste0("Run", Run)]]<-track
-
-                    #create dada plots
-                    RunDadaPlots[[Run]]<-list()
-                    RunDadaPlots[[Run]][[1]]<-plotQualityProfile(fnFs) #example
-                    RunDadaPlots[[Run]][[2]]<-plotQualityProfile(fnRs) #example
-                    RunDadaPlots[[Run]][[3]]<-plotQualityProfile(filtFs) #example
-                    RunDadaPlots[[Run]][[4]]<-plotQualityProfile(filtRs) #example
-                    RunDadaPlots[[Run]][[5]]<-plotErrors(errF, nominalQ=TRUE)
-                    RunDadaPlots[[Run]][[6]]<-plotErrors(errR, nominalQ=TRUE)
 
                     #create main output of ESVtable    
                     ESVtable<-seqtab
