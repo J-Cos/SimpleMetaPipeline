@@ -76,7 +76,7 @@
                                     pool=pool,
                                     MixedOrientation=MixedOrientation,
                                     NumberOfRuns=NumberOfRuns,
-                                    Premerged=Premerged)
+                                    ReadType=ReadType)
 
             #inspect outputs
                 #DadaOutput$SeqDataTable

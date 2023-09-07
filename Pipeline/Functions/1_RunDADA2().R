@@ -1,8 +1,9 @@
         RunDADA2<-function(truncLen=NULL, trimLeft=NULL, maxN=0, maxEE=c(2,2), 
                             truncQ=2, DesiredSequenceLengthRange=NULL, dataname=NULL, multithread, pool,
-                            UseCutadapt=FALSE, MixedOrientation=FALSE, NumberOfRuns=1, Premerged=FALSE) {
+                            UseCutadapt=FALSE, MixedOrientation=FALSE, NumberOfRuns=1, ReadType="Paired-end") {
             #stop function if necessary arguments blank                    
             if (is.null(truncLen) | is.null(trimLeft)) stop("You must specify truncLen and trimLeft")
+            if(!ReadType %in% c("Paired-end", "Single-read", "Premerged")) stop("ReadType not set correctly, must be one of: 'Paired-end', 'Single-read', 'Premerged' ")
 
             #make lists to populate with outputs from each Run
             RunESVtables<-list()
@@ -27,7 +28,7 @@
 
                     print( paste0( "RUN ", Run))
 
-                    if(!Premerged){
+                    if(ReadType=="Paired-end"){
 
                         #get filenames of fastas from right folder depending on if cutadapt run
                         if (UseCutadapt==FALSE) {
@@ -80,7 +81,7 @@
                         track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
                         colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged")
 
-                    } else if (Premerged){
+                    } else if (ReadType=!"Paired-end"){
                         #get merged filenames
                         fns<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern=".fastq", full.names = TRUE))
 
@@ -100,8 +101,10 @@
                         err <- learnErrors(filts, multithread=multithread)
                         print("learnErrors Complete")
 
-                        #inflate errors to deal with problems introduced to error scores by merging forward and reverse befoer running dada2
-                        inflatedErr<-inflateErr(err, 3)
+                        if (ReadType=="Premerged"){
+                            #inflate errors to deal with problems introduced to error scores by merging forward and reverse befoer running dada2
+                            inflatedErr<-inflateErr(err, 3)
+                        }
                         
                         #denoise
                         dada <- dada(filts, err=inflatedErr, multithread=multithread,pool=pool)
