@@ -81,7 +81,7 @@
                         track <- cbind(out, sapply(dadaFs, getN), sapply(dadaRs, getN), sapply(mergers, getN)) # If processing a single sample, remove the sapply calls: e.g. replace sapply(dadaFs, getN) with getN(dadaFs)
                         colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged")
 
-                    } else if (ReadType=!"Paired-end"){
+                    } else if (ReadType!="Paired-end"){
                         #get merged filenames
                         fns<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern=".fastq", full.names = TRUE))
 
@@ -105,7 +105,7 @@
                             #inflate errors to deal with problems introduced to error scores by merging forward and reverse befoer running dada2
                             inflatedErr<-inflateErr(err, 3)
                         }
-                        
+
                         #denoise
                         dada <- dada(filts, err=inflatedErr, multithread=multithread,pool=pool)
                         print("denoise Complete")

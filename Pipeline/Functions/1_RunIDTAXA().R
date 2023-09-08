@@ -2,9 +2,9 @@
 
 #expects classifier trained with seq names in following format, number of ranks can vary: "Root; Arthropoda; Arachnida; Araneae; Uloboridae; Zosis; geniculata" 
 
-RunIdtaxa<-function(Type, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=500, parallel=FALSE, multithread=multithread) {
+RunIdtaxa<-function(IDTAXA, trainingSet, TableToMergeTo, SeqsToAssign=SeqsToAssign, threshold, QuerySequenceChunkSize=500, parallel=FALSE, multithread=multithread) {
     
-    if (Type == "Assign") {
+    if (IDTAXA) {
         #SeqsToAssign should modify which seqs are selected here
             if (SeqsToAssign=="ESVs"){
                 dna <- Biostrings::DNAStringSet(TableToMergeTo[,2])

@@ -8,7 +8,14 @@
 # DO NOT adjust this pipeline for the purpose of analysing a single dataset. Adjustments here should instead reflect
 #optimisation of the general pipeline. 
 
-# to parameterise the pipeline for a specific dataset please create a new ParameterSet script.
+# to parameterise the pipeline for a specific dataset please create a new ControlScript.
+
+if (HPC==TRUE)   {
+    #CRAN mirror
+        r = getOption("repos")
+        r["CRAN"] = "http://cran.us.r-project.org"
+        options(repos = r)
+}
 
 #A set seed for replication
     set.seed(0.1)
@@ -162,7 +169,7 @@
             #load reference library
 
         # 6.1 Run Module
-                IdtaxaOutput<-RunIdtaxa(Type=Type, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold, parallel=parallel, multithread=multithread)
+                IdtaxaOutput<-RunIdtaxa(IDTAXA=IDTAXA, trainingSet=trainingSet, TableToMergeTo=LuluOutput2, SeqsToAssign=SeqsToAssign, threshold=threshold, parallel=parallel, multithread=multithread)
                 
         # 6.2 cache Output
             CacheOutput(IdtaxaOutput)
@@ -180,7 +187,7 @@
             ConfirmInputsPresent("IdtaxaOutput")
         
         #7.1 run blast if desired
-        if (Blast=="Yes"){
+        if (Blast){
         BlastOutput<-RunBLAST(dbname=dbname, clustering="ESV", TableToMergeTo=IdtaxaOutput$SeqDataTable, assignmentThresholds=assignmentThresholds, Blastdesiredranks= Blastdesiredranks) 
         } else (BlastOutput<-NULL)
 
