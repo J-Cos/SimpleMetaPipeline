@@ -71,6 +71,8 @@ If installed correctly the pipeline will run and the IntermediateOutputs and Res
 
 # 4) Now you can run your own data, create a new control script from the template and run the pipeline from this control script as you did before!
 
+Once your have results take a look at SimpleMetaPackage (https://github.com/J-Cos/SimpleMetaPackage) which provides tools to easily convert pipeline outputs to phyloseq objects, and also enables multi-algorithm agreement tests.
+
 Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on vidual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
 
 If you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset.
