@@ -6,11 +6,11 @@
 # 1) Download pipeline and create directory structure
 
  First download the pipeline code from this repository. This contains 4 subdirectories as follows:
-- Pipeline: the main directory containing the pipeline itself (Pipeline.R) and a directory (Functions) containing all the functions called by the pipeline. You do not need to midify these scripts.
+- Pipeline: the main directory containing the pipeline itself (Pipeline.R) and a directory (Functions) containing all the functions called by the pipeline. You do not need to modify these scripts.
 - ControlScripts: this directory contains a single example control script. First use this example to check your installation is working, and then modify it to create a control script for your own data. This is the only directory where you should modify scripts.
 - 2 other directories not required to run the pipeline. These contain supporting functionality that is under develoment.
 
- Then you need to build the expected directory structure, so the pipeline knows how to find the inputs and can provide outputs in the expected locations. This exact directory structure is required for the pipeline to work.
+ Then you need to build the expected directory structure, so the pipeline knows where to find the inputs and can provide outputs in the expected locations. This exact directory structure is required for the pipeline to work.
 
  First run this code in R
 
@@ -25,16 +25,16 @@
     dir.create((file.path("BioinformaticsPipeline_Env", "Data", "Raw")))
 
 This creates a directory structure as follows:
-- FASTQs - fill this directory with an a subdirectory containing all runs you wish to analyse together. Within this subdirecotry create further subdirectories for each run titled Run1, Run2.. RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
-- Data - fill this file with your taxonomic reference library trainingsets and metadata (raw fastas in "Raw", IDtaxa classifiers in "Classifiers", and BlastDbs in "BlastDBs")
+- FASTQs - fill this directory with a subdirectory containing all runs you wish to analyse together. Within this subdirectory create further subdirectories for each run titled Run1, Run2.. RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
+- Data - fill this directory with your taxonomic reference library training sets and metadata (raw training library fastas in "Raw", IDtaxa classifiers in "Classifiers", and BlastDbs in "BlastDBs"). You can download commonly used IDtaxa classifiers here: http://www2.decipher.codes/Downloads.html
 - IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each step in the pipeline is saved here as it is produced. Note that this means you will need to empty this directory if you wish to start a new pipeline run on data you have previously run through the pipeline.
 - Results - this is where final results will be saved. Once you have your results it is recommened you move them out of this directory into a project specific directory. This will keep the pipeline directory structure clean for future pipeline runs.
 
-Finally copy and paste this downloaded directory into the structure without renaming it:
+Finally copy and paste this downloaded directory into the BioinformaticsPipeline_Env directory without renaming it:
 - BioinformaticsPipeline
 
 # 2) Install dependencies    
-Independent software. You must install these software yourself and ensure they are in usr/bin or usr/local/bin before running the pipeline. It is recommended to install these via bioconda and required links are provided below.
+Independent software. You must install these software yourself and ensure they are in usr/bin or usr/local/bin before running the pipeline. It is recommended to install these via bioconda and links containing instructions on how to do so are provided below.
 - vsearch v2.4.1 https://anaconda.org/bioconda/vsearch
 - swarm v3.1 https://anaconda.org/bioconda/swarm
 - cutadapt v3.5 https://anaconda.org/bioconda/cutadapt
@@ -42,14 +42,14 @@ Independent software. You must install these software yourself and ensure they a
     
 R Packages - these will be installed automatically the first time you run the pipeline
 
-    dada2 v1.24.0
-    seqinr v4.2-16
-    DECIPHER v2.24.0
-    dplyr v1.1.1
-    lulu v0.1.0
-    ggplot2 v3.4.0
-    gridExtra v2.3
-    ShortRead v1.54.0
+   dada2 v1.24.0
+   seqinr v4.2-16
+   DECIPHER v2.24.0
+   dplyr v1.1.1
+   lulu v0.1.0
+   ggplot2 v3.4.0
+   gridExtra v2.3
+   ShortRead v1.54.0
 
 # 3) Run the example data through the pipeline to confirm your installation is correctly configured.
 
@@ -57,9 +57,13 @@ Download the example data here: https://drive.google.com/drive/folders/1FUALCE8P
 
 Move the Example directory contained in the downloaded .zip file (along with all contained subdirectories) into the FASTQs directory within the pipeline directory structure you created earlier.
 
+Download a compatible IDtaxa classifier here (this example data is 16s so we need to use a 16s classifier): http://www2.decipher.codes/Classification/TrainingSets/GTDB_r207-mod_April2022.RData
+
+Move the downloaded classifier into the Data/Classifiers directory within the pipeline directory structure you created earlier.
+
 Open R and run the following command:
 
-source("<YourPath>/BioinformaticsPipeline_Env/BioinformaticsPipeline/ControlScriptExample.R")
+    source("<YourPath>/BioinformaticsPipeline_Env/BioinformaticsPipeline/ControlScriptExample.R")
 
 Note that this is equivalent to openning ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
 
@@ -69,4 +73,4 @@ If installed correctly the pipeline will run and the IntermediateOutputs and Res
 
 Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on vidual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
 
-Remember if you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset.
+If you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset.
