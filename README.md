@@ -1,59 +1,72 @@
 [![DOI](https://zenodo.org/badge/419331038.svg)](https://zenodo.org/badge/latestdoi/419331038)
 
-# SimplePipeline
- General Bioinformatic Pipeline, and parameter sets recorded for specific datasets.
+# SimpleMetaPipeline
+ A simple bioinformatic pipeline for metabarcoding and meta-analyses, designed for Linux.
 
-# 1) directory structure
- Before you start you need the right directory structure.
+# 1) Download pipeline and create directory structure
+
+ First download the pipeline code from this repository. This contains 4 subdirectories as follows:
+- Pipeline: the main directory containing the pipeline itself (Pipeline.R) and a directory (Functions) containing all the functions called by the pipeline. You do not need to midify these scripts.
+- ControlScripts: this directory contains a single example control script. First use this example to check your installation is working, and then modify it to create a control script for your own data. This is the only directory where you should modify scripts.
+- 2 other directories not required to run the pipeline. These contain supporting functionality that is under develoment.
+
+ Then you need to build the expected directory structure, so the pipeline knows how to find the inputs and can provide outputs in the expected locations. This exact directory structure is required for the pipeline to work.
 
  First run this code in R
 
     setwd() #set this to where you want the pipeline environment to be located
-    path <-"../../BioinformaticPipeline_Env"
-    dir.create("BioinformaticPipeline_Env")
-    dir.create((file.path("BioinformaticPipeline_Env", "FASTQs")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data")))
-    dir.create((file.path("BioinformaticPipeline_Env", "IntermediateOutputs")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Results")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data", "BlastDBs")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Classifiers")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Raw")))
+    dir.create("BioinformaticsPipeline_Env")
+    dir.create((file.path("BioinformaticsPipeline_Env", "FASTQs")))
+    dir.create((file.path("BioinformaticsPipeline_Env", "Data")))
+    dir.create((file.path("BioinformaticsPipeline_Env", "IntermediateOutputs")))
+    dir.create((file.path("BioinformaticsPipeline_Env", "Results")))
+    dir.create((file.path("BioinformaticsPipeline_Env", "Data", "BlastDBs")))
+    dir.create((file.path("BioinformaticsPipeline_Env", "Data", "Classifiers")))
+    dir.create((file.path("BioinformaticsPipeline_Env", "Data", "Raw")))
 
 This creates a directory structure as follows:
-- FASTQs - fill this directory with directories titled Run1, Run2.. RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
+- FASTQs - fill this directory with an a subdirectory containing all runs you wish to analyse together. Within this subdirecotry create further subdirectories for each run titled Run1, Run2.. RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
 - Data - fill this file with your taxonomic reference library trainingsets and metadata (raw fastas in "Raw", IDtaxa classifiers in "Classifiers", and BlastDbs in "BlastDBs")
-- IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
-- Results - this is where final results will be saved
+- IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each step in the pipeline is saved here as it is produced. Note that this means you will need to empty this directory if you wish to start a new pipeline run on data you have previously run through the pipeline.
+- Results - this is where final results will be saved. Once you have your results it is recommened you move them out of this directory into a project specific directory. This will keep the pipeline directory structure clean for future pipeline runs.
 
-Finally copy and paste this downloaded directory into the structure:
-- BioinformaticPipeline - get this from github and then create your own control file from the template - no need to modify anything else
+Finally copy and paste this downloaded directory into the structure without renaming it:
+- BioinformaticsPipeline
 
-
-# 2) dependencies    
-installed software - you must install these yourself and ensure they are in usr/bin or usr/local/bin.
-- vsearch
-- swarm v2
-- cutadapt
-- BLAST
+# 2) Install dependencies    
+Independent software. You must install these software yourself and ensure they are in usr/bin or usr/local/bin before running the pipeline. It is recommended to install these via bioconda and required links are provided below.
+- vsearch v2.4.1 https://anaconda.org/bioconda/vsearch
+- swarm v3.1 https://anaconda.org/bioconda/swarm
+- cutadapt v3.5 https://anaconda.org/bioconda/cutadapt
+- BLAST v2.9.0-2 https://anaconda.org/bioconda/blast
     
-R Packages - will be installed automatically in the pipeline
+R Packages - these will be installed automatically the first time you run the pipeline
 
-    library(dada2)
-    library(seqinr)
-    library(DECIPHER)
-    library(tidyverse)
-    library(lulu)
-    library(ggplot2)
-    library(gridExtra)
-    library(ShortRead)
+    dada2 v1.24.0
+    seqinr v4.2-16
+    DECIPHER v2.24.0
+    dplyr v1.1.1
+    lulu v0.1.0
+    ggplot2 v3.4.0
+    gridExtra v2.3
+    ShortRead v1.54.0
 
-# 3) now you can start, create a new control script from the template and run the pipeline!
+# 3) Run the example data through the pipeline to confirm your installation is correctly configured.
 
-Remember you will need to find the optimal parameters first - either do this algorithmically or visually for instance in QIIME2.
+Download the example data here: https://drive.google.com/drive/folders/1FUALCE8PkWZabMpG4VuMjQqL_6hMmmpZ?usp=sharing
 
+Move the Example directory contained in the downloaded .zip file (along with all contained subdirectories) into the FASTQs directory within the pipeline directory structure you created earlier.
 
-# Appendix 1
-## HPC Instructions
-Linux and Mac OS open a Terminal on your desktop and type  ssh -XY username@login.hpc.imperial.ac.uk, substituting in your own college username, and entering in its password when prompted You'll need to be on the College network, or connected to the VPN.
+Open R and run the following command:
 
-Map drive with "IC" as domain
+source("<YourPath>/BioinformaticsPipeline_Env/BioinformaticsPipeline/ControlScriptExample.R")
+
+Note that this is equivalent to openning ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
+
+If installed correctly the pipeline will run and the IntermediateOutputs and Results directories you created earlier will be populated with the outputs of the pipeline.
+
+# 4) Now you can run your own data, create a new control script from the template and run the pipeline from this control script as you did before!
+
+Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on vidual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
+
+Remember if you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset.
