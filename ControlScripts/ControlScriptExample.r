@@ -16,7 +16,7 @@
         multithread=4
             # number of threads to use on parallelised steps within the pipeline
 
-    # Cutadapt settings
+    # Cutadapt settings https://cutadapt.readthedocs.io/en/stable/
         UseCutadapt=FALSE
             # either TRUE or FALSE: determines whether cutadapt is run
         FWD ="ACTG"
@@ -24,7 +24,7 @@
         REV = "ACTG"
             ## your reverse primer sequence
 
-    # DADA2 settings
+    # DADA2 settings https://benjjneb.github.io/dada2/index.html
         NumberOfRuns<-2
             #Number of sequencing runs used to generate the data for this experiment, e.g. 1 or 2
         truncLen=list(c(150,150), c(150,150))
@@ -59,7 +59,7 @@
             # This is not recommended but in some historic datasets it is unavoidable. In this case DADA2's inflateErr(inflation=3) function is used to correct distortions
             # to error rates introduced by premerging the paired-end reads.
 
-    # lulu settings1
+    # lulu settings1 https://github.com/tobiasgf/lulu
         MatchRate1=90 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
         MinRelativeCo1 = 0.95 #as a decimal, default 0.95
@@ -79,7 +79,7 @@
         #  it will also increase the potential of clustering
         #  well-separated, but co-occuring, sequence similar species. 
 
-     # cluster settings   
+     # cluster settings https://github.com/torognes/vsearch https://github.com/torognes/swarm
         linkage = "complete"
              #either complete (vsearch) or single (swarm)
         differences=1
@@ -89,7 +89,7 @@
         threads=20
             # number of threads available 
 
-    # lulu settings2
+    # lulu settings2 https://github.com/tobiasgf/lulu
         MatchRate2=90 #as a %, default 84
             # % matching bases to consider clustering OTUs if co-occurence seen. 
         MinRelativeCo2 = 0.95 #as a decimal, default 0.95
@@ -109,7 +109,7 @@
         #  it will also increase the potential of clustering
         #  well-separated, but co-occuring, sequence similar species. 
 
-    # IDTAXA settings
+    # IDTAXA settings https://www.bioconductor.org/packages/release/bioc/vignettes/DECIPHER/inst/doc/ClassifySequences.pdf
         IDTAXA =TRUE
             #whether to run IDTAXA assignment, TRUE or FALSE
         desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")
@@ -138,7 +138,7 @@
             #each core will classify 500 sequences at a time using parallel::mclapply. Setting this to TRUE is recommended 
             # on an an HC with more than 10 cores. Note that this is a workaround as Idtaxa's inbuilt parallelisation seems
             # unable to use more than around 10 cores.
-    #BLAST
+    #BLAST https://www.ncbi.nlm.nih.gov/books/NBK1734/
         Blast= FALSE
             #run blast or not, TRUE or FALSE
         dbname= "MidoriBiocodeBlastDB" 
