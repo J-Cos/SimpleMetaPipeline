@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/419331038.svg)](https://zenodo.org/badge/latestdoi/419331038)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7740558.svg)](https://doi.org/10.5281/zenodo.7740558)
 
 # SimpleMetaPipeline
  A simple bioinformatic pipeline for metabarcoding and meta-analyses, designed for Linux.
