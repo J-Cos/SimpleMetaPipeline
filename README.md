@@ -41,15 +41,14 @@ Independent software. You must install these software yourself and ensure they a
 - BLAST v2.9.0-2 https://anaconda.org/bioconda/blast
     
 R Packages - these will be installed automatically the first time you run the pipeline
-
-   dada2 v1.24.0
-   seqinr v4.2-16
-   DECIPHER v2.24.0
-   dplyr v1.1.1
-   lulu v0.1.0
-   ggplot2 v3.4.0
-   gridExtra v2.3
-   ShortRead v1.54.0
+- dada2 v1.24.0
+- seqinr v4.2-16
+- DECIPHER v2.24.0
+- dplyr v1.1.1
+- lulu v0.1.0
+- ggplot2 v3.4.0
+- gridExtra v2.3
+- ShortRead v1.54.0
 
 # 3) Run the example data through the pipeline to confirm your installation is correctly configured.
 
@@ -65,7 +64,7 @@ Open R and run the following command:
 
     source("<YourPath>/BioinformaticsPipeline_Env/BioinformaticsPipeline/ControlScriptExample.R")
 
-Note that this is equivalent to openning ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
+Note that this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
 
 If installed correctly the pipeline will run and the IntermediateOutputs and Results directories you created earlier will be populated with the outputs of the pipeline.
 
