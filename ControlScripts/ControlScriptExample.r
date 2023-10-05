@@ -10,6 +10,10 @@
                 # ReferenceLibraries - directory with your taxonomic reference library formatted as i) IDTAXA classsifier and/or ii) BLAST database
                 # IntermediateOutputs - this directory will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each module is saved here.
                 # Results - this is where final results will be saved
+        dataPath<-NULL
+            # if NULL (default) then the fastqs will be found in the FASTQs directory of the BioinformaticPipeline_Env directory. Normally there is no reason to modify this.
+            # In the case of large datasets in external storage or research data stores on HPCs you can specify the path to the fastqs here. Note that all other components of the 
+            # pipeline will work as normal and all outputs will be written to the BioinformaticPipeline_Env/IntermediateOutputs and BioinformaticPipeline_Env/Results.
         dataname="Example"
             # this should be the name you associate with this set of fastqs,  the inout fastq folder should be labelled with this
             # and all output and result files will be labelled with this name.

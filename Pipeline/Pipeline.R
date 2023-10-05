@@ -45,7 +45,8 @@ if (HPC==TRUE)   {
 #C identify where the pipeline should start
     StartingStep<-IdentifyLastInputPresent(c("CutadaptOutput", "DadaOutput", "LuluOutput1","ClusterOutput", "LuluOutput2", "IdtaxaOutput", "BlastOutput"))
 
-
+# check if dataPath is set (i.e. fastqs are stored externally), if it is not then default to standard path for pipeline
+    if (is.null(dataPath)) { dataPath<-path} 
 
 #1 Cutadapt
     if (StartingStep <= 1) {

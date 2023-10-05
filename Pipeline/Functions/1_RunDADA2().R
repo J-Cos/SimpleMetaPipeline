@@ -12,7 +12,7 @@
 
             #loop over all runs
                 #get all run names
-                RunNames<-list.files(file.path(path, "FASTQs", dataname))
+                RunNames<-list.files(file.path(dataPath, "FASTQs", dataname))
 
                 #first check if any runs completed in a previous exited run, if so load these and append uncompleted runs to this object
                 if(file.exists(file=file.path(path, "IntermediateOutputs", paste0(dataname,"_RunESVtables.RDS")))) {
@@ -33,8 +33,8 @@
                         #get filenames of fastas from right folder depending on if cutadapt run
                         if (UseCutadapt==FALSE) {
                             # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
-                            fnFs<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern="_R1_001.fastq", full.names = TRUE))
-                            fnRs<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern="_R2_001.fastq", full.names = TRUE))
+                            fnFs<-sort(list.files(file.path(dataPath, "FASTQs", dataname, RunNames[Run]), pattern="_R1_001.fastq", full.names = TRUE))
+                            fnRs<-sort(list.files(file.path(dataPath, "FASTQs", dataname, RunNames[Run]), pattern="_R2_001.fastq", full.names = TRUE))
                         } else if (UseCutadapt==TRUE) {
                             fnFs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R1_001.fastq", full.names = TRUE))
                             fnRs<-sort(list.files(file.path(path, "IntermediateOutputs", paste0(dataname,"_CutadaptedSeqs")), pattern="_R2_001.fastq", full.names = TRUE))
@@ -83,7 +83,7 @@
 
                     } else if (ReadType!="Paired-end"){
                         #get merged filenames
-                        fns<-sort(list.files(file.path(path, "FASTQs", dataname, RunNames[Run]), pattern=".fastq", full.names = TRUE))
+                        fns<-sort(list.files(file.path(dataPath, "FASTQs", dataname, RunNames[Run]), pattern=".fastq", full.names = TRUE))
 
                         # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
                         SampleNames <- sapply(strsplit(basename(fns), ".fastq"), `[`, 1) %>%

@@ -9,8 +9,8 @@ RunCutadapt<-function(multithread, FWD, REV, dataname=NULL, UseCutadapt=FALSE) {
     else if (UseCutadapt == TRUE){
 
         # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
-        fnFs<-loadFastq(FASTQ_folder=dataname, pattern="_R1_001.fastq")
-        fnRs<-loadFastq(FASTQ_folder=dataname, pattern="_R2_001.fastq")
+        fnFs<-sort(list.files(file.path(dataPath, "FASTQs", dataname, RunNames[Run]), pattern="_R1_001.fastq", full.names = TRUE))
+        fnRs<-sort(list.files(file.path(dataPath, "FASTQs", dataname, RunNames[Run]), pattern="_R2_001.fastq", full.names = TRUE))
 
         FWD.orients <- allOrients(FWD)
         REV.orients <- allOrients(REV)
