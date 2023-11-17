@@ -51,7 +51,7 @@ Move the downloaded classifier into the Data/Classifiers directory within the pi
 
 Open terminal and run the following commands:
 
-    conda activate ../BioinformaticPipeline/env
+    conda activate ../BioinformaticsPipeline/env
     Rscript "ControlScripts/ControlScriptExample.r"
 
 Note that (once that environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
