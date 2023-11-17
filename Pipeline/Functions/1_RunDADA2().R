@@ -195,7 +195,7 @@
                     chimericData<-rowSums(ESVtable) %>% 
                         as.data.frame %>% 
                         rownames_to_column("rowname_for_merging")%>%
-                        rename("non-chimeric, applied post reorientation and merging of FO and RO" = ".") 
+                        rename("."= "non-chimeric, applied post reorientation and merging of FO and RO") 
 
                     DadaTables<-DadaTables%>%  
                         as.data.frame %>% 

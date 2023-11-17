@@ -34,21 +34,9 @@ Finally copy and paste this downloaded directory into the BioinformaticsPipeline
 - BioinformaticsPipeline
 
 # 2) Install dependencies    
-Independent software. You must install these software yourself and ensure they are in usr/bin or usr/local/bin before running the pipeline. It is recommended to install these via bioconda and links containing instructions on how to do so are provided below.
-- vsearch v2.4.1 https://anaconda.org/bioconda/vsearch
-- swarm v3.1 https://anaconda.org/bioconda/swarm
-- cutadapt v3.5 https://anaconda.org/bioconda/cutadapt
-- BLAST v2.9.0-2 https://anaconda.org/bioconda/blast
-    
-R Packages - these will be installed automatically the first time you run the pipeline
-- dada2 v1.24.0
-- seqinr v4.2-16
-- DECIPHER v2.24.0
-- dplyr v1.1.1
-- lulu v0.1.0
-- ggplot2 v3.4.0
-- gridExtra v2.3
-- ShortRead v1.54.0
+SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this you need to open your terminal navigate to the directory you just created and run one line of code. For example if your directory was in your home directory:
+    cd BioinformaticsPipeline_Env/BioinformaticsPipeline
+    conda env create --prefix ./env --file environment.yml
 
 # 3) Run the example data through the pipeline to confirm your installation is correctly configured.
 

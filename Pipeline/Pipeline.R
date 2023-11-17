@@ -10,33 +10,30 @@
 
 # to parameterise the pipeline for a specific dataset please create a new ControlScript.
 
-if (HPC==TRUE)   {
-    #CRAN mirror
-        r = getOption("repos")
-        r["CRAN"] = "http://cran.us.r-project.org"
-        options(repos = r)
-}
+
+#set CRAN mirror
+    r = getOption("repos")
+    r["CRAN"] = "http://cran.us.r-project.org"
+    options(repos = r)
+
 
 #A set seed for replication
     set.seed(0.1)
 
-#B dependencies    
-    #installed software (get latest from bioconda e.g.  conda install -c bioconda blast==2.12.0)
-        #vsearch
-        #swarm v2
-        #blast
-    #R packages (install from bioconductor or through R devtools as appropriate )
-    if (!require("pacman")) install.packages("pacman")
-    pacman::p_load( dada2,
-                    seqinr,
-                    DECIPHER,
-                    tidyverse,
-                    lulu,
-                    ggplot2,
-                    gridExtra,
-                    ShortRead,
-                    Biostrings)
+#B dependencies unavailable through conda (see environment.yml for full list) 
+    #install r packages unavailable through conda
+        devtools::install_github("tobiasgf/lulu")  
+    #load packages installed with conda
+        library(tidyverse)
+        library(gridExtra)
+        library(seqinr)
+        library(ShortRead)
+        library(Biostrings)
+        library(dada2)
+        library(lulu)
+        library(DECIPHER)
 
+#reomve all this as handled in conda and just instll lulu via devtools
     #Functions
         function_files<-list.files(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions"))
         sapply(file.path(path, "BioinformaticPipeline", "Pipeline", "Functions",function_files),source)
