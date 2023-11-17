@@ -24,7 +24,7 @@ CreateMatchlistForLulu<-function(Input, MatchRate, clustering, multithread=multi
     system(command= paste0("cd ", file.path(path, "IntermediateOutputs"), "&& vsearch --usearch_global ", 
             sequencesfile ," --db ", sequencesfile, 
             " --threads ", mc.cores,
-            " --self --id .", MatchRate," --iddef 1 --userout ", dataname ,"_", clustering ,"_match_list.txt -userfields query+target+id --maxaccepts 0 --maxrejects 0 --query_cov .9 --maxhits 0"))
+            " --self --id .", MatchRate," --iddef 1 --userout ", dataname ,"_", clustering ,"_match_list.txt -userfields query+target+id --maxaccepts 0 --maxrejects 0 --query_cov .9 --maxhits 10"))
 
     matchlist <- read.table(file.path(path, "IntermediateOutputs", paste0(dataname ,"_", clustering ,"_match_list.txt")), sep="\t", header=FALSE)
 
