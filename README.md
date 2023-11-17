@@ -49,11 +49,12 @@ Download a compatible IDtaxa classifier here (this example data is 16s so we nee
 
 Move the downloaded classifier into the Data/Classifiers directory within the pipeline directory structure you created earlier.
 
-Open R and run the following command:
+Open terminal and run the following commands:
 
-    source("<YourPath>/BioinformaticsPipeline_Env/BioinformaticsPipeline/ControlScriptExample.R")
+    conda activate ../BioinformaticPipeline/env
+    Rscript "ControlScripts/ControlScriptExample.r"
 
-Note that this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
+Note that (once that environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
 
 If installed correctly the pipeline will run and the IntermediateOutputs and Results directories you created earlier will be populated with the outputs of the pipeline.
 
