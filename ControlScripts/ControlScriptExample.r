@@ -1,7 +1,7 @@
 #Control Script Template
     # general settings
-        path <-".."
-            # this should be the path to the working directory within which you have the following folders:
+        path <-""
+            # If running the pipeline as standard (starting in the BioinformaticPipeline_Env directory) leave this blank. This designates the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
                 # FASTQs -directory with your unmerged multiplexed raw FASTQ files, in a subdirectory named to match dataname argument
                 # ReferenceLibraries - directory with your taxonomic reference library formatted as i) IDTAXA classsifier and/or ii) BLAST database

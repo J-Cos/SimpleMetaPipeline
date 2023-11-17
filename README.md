@@ -36,8 +36,8 @@ Finally copy and paste this downloaded directory into the BioinformaticPipeline_
 # 2) Install dependencies    
 SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this you need to open your terminal navigate to the directory you just created and run one line of code. For example if your directory was in your home directory:
     
-    cd BioinformaticPipeline_Env/BioinformaticPipeline
-    conda env create --prefix ./env --file environment.yml
+    cd BioinformaticPipeline_Env # changes to our new directory
+    conda env create --prefix ./BioinformaticPipeline/env --file BioinformaticPipeline/environment.yml # creates the conda environment
 
 This creates a conda environment containing all the software dependencies for the pipeline to work. 
 
@@ -79,8 +79,10 @@ Now let's check everything looks right. Your directory structure should look lik
 
 If it does then you are ready to run the pipeline. Open the terminal and run the following commands:
 
-    conda activate ../BioinformaticPipeline/env # active conda environment
-    Rscript "ControlScripts/ControlScriptExample.r" # run pipeline within this environment
+    cd BioinformaticPipeline_Env # changes to the desired directory
+
+    conda activate ./BioinformaticPipeline/env # active conda environment
+    Rscript "BioinformaticPipeline/ControlScripts/ControlScriptExample.r" # run pipeline within this environment
 
 Note that (once our conda environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of ControlScriptExample.r sequentially.
 
