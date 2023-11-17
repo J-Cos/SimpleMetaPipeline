@@ -1,6 +1,6 @@
 #Control Script Template
     # general settings
-        path <-""
+        path <-"../BioinformaticPipeline_Env"
             # If running the pipeline as standard (starting in the BioinformaticPipeline_Env directory) leave this blank. This designates the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
                 # FASTQs -directory with your unmerged multiplexed raw FASTQ files, in a subdirectory named to match dataname argument
