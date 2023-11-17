@@ -53,6 +53,7 @@ Move the downloaded classifier into the Data/Classifiers directory within the pi
 
 Now let's check everything lokos right. Your directory structure should look like this:
 
+```bash
 └──BioinformaticPipeline_Env
     ├── BioinformaticPipeline
     │   ├── ControlScripts
@@ -74,7 +75,7 @@ Now let's check everything lokos right. Your directory structure should look lik
     │       └── RandomCode_Run2_RandomCode
     ├── IntermediateOutputs
     └── Results
-
+```
 
 Open terminal and run the following commands:
 
