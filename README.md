@@ -51,7 +51,7 @@ Download a compatible IDtaxa classifier here (this example data is 16s so we nee
 
 Move the downloaded classifier into the Data/Classifiers directory within the pipeline directory structure you created earlier.
 
-Now let's check everything lokos right. Your directory structure should look like this:
+Now let's check everything looks right. Your directory structure should look like this:
 
 ```bash
 └──BioinformaticPipeline_Env
@@ -77,14 +77,29 @@ Now let's check everything lokos right. Your directory structure should look lik
     └── Results
 ```
 
-Open terminal and run the following commands:
+If it does then you are ready to run the pipeline. Open the terminal and run the following commands:
 
     conda activate ../BioinformaticPipeline/env # active conda environment
     Rscript "ControlScripts/ControlScriptExample.r" # run pipeline within this environment
 
-Note that (once our conda environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
+Note that (once our conda environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of ControlScriptExample.r sequentially.
 
-If installed correctly the pipeline will run and the IntermediateOutputs and Results directories you created earlier will be populated with the outputs of the pipeline.
+If you've done everything correctly the pipeline will run and the IntermediateOutputs and Results directories you created earlier will be populated with the outputs of the pipeline. All these files are prefixed with the name of your dataset, in this case "Example".
+
+IntermediateOutputs files include the output after each algorithm is applied (e.g. Example_DadaOutput.RDS and Example_IdtaxaOutput.RDS)
+
+Results contains 9 files as follows
+- Main results files
+    - Example_SeqDataTable.RDS (the main result of the pipeline, use this as the input to SimpleMetaPackage::SeqDataTable2Phyloseq(), see below)
+    - Example_SeqDataTable.csv (the same information in csv format, for easy visual inspection)
+- Post-run diagnostic files
+    - Example_PrimerCounts.csv (if cutadapt used - the number of each primer found)
+    - Example_PrimerCountsAfterCutadapt.csv (If cutadapt used - the number of each primer remaining (should be 0)
+    - Example_DadaSeqLengthDistribution.csv (the distribution of ASV lengths as prduced by dada2)
+    - Example_DadaTable.csv (a tracking table showing the number fo reads passing each step in the dada2 process)
+    - Example_DadaPlots.pdf (key diagnostic plots produced by dada2)
+    - Example_ClusteringTable.csv (simple table showing the number of ASVs, OTUs or similar clusters produced)
+    - Example_TaxaAssignment.pdf (taxonomic assignment pie chart produced by IDTAXA)
 
 # 4) Now you can run your own data, create a new control script from the template and run the pipeline from this control script as you did before!
 
@@ -92,4 +107,4 @@ Once your have results take a look at SimpleMetaPackage (https://github.com/J-Co
 
 Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on vidual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
 
-If you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset.
+If you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset. This is because the pipeline checks which intermediate outputs are available and starts running from the furthest point the pipeline previously reached. This is a feature as it allows an interrupted run to be start from the last completed step, rather than needing to start from the beginning again.
