@@ -15,14 +15,14 @@
  First run this code in R
 
     setwd() #set this to where you want the pipeline environment to be located
-    dir.create("BioinformaticsPipeline_Env")
-    dir.create((file.path("BioinformaticsPipeline_Env", "FASTQs")))
-    dir.create((file.path("BioinformaticsPipeline_Env", "Data")))
-    dir.create((file.path("BioinformaticsPipeline_Env", "IntermediateOutputs")))
-    dir.create((file.path("BioinformaticsPipeline_Env", "Results")))
-    dir.create((file.path("BioinformaticsPipeline_Env", "Data", "BlastDBs")))
-    dir.create((file.path("BioinformaticsPipeline_Env", "Data", "Classifiers")))
-    dir.create((file.path("BioinformaticsPipeline_Env", "Data", "Raw")))
+    dir.create("BioinformaticPipeline_Env")
+    dir.create((file.path("BioinformaticPipeline_Env", "FASTQs")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Data")))
+    dir.create((file.path("BioinformaticPipeline_Env", "IntermediateOutputs")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Results")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Data", "BlastDBs")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Classifiers")))
+    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Raw")))
 
 This creates a directory structure as follows:
 - FASTQs - fill this directory with a subdirectory containing all runs you wish to analyse together. Within this subdirectory create further subdirectories for each run titled Run1, Run2.. RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
@@ -30,13 +30,13 @@ This creates a directory structure as follows:
 - IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each step in the pipeline is saved here as it is produced. Note that this means you will need to empty this directory if you wish to start a new pipeline run on data you have previously run through the pipeline.
 - Results - this is where final results will be saved. Once you have your results it is recommened you move them out of this directory into a project specific directory. This will keep the pipeline directory structure clean for future pipeline runs.
 
-Finally copy and paste this downloaded directory into the BioinformaticsPipeline_Env directory without renaming it:
-- BioinformaticsPipeline
+Finally copy and paste this downloaded directory into the BioinformaticPipeline_Env directory without renaming it:
+- BioinformaticPipeline
 
 # 2) Install dependencies    
 SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this you need to open your terminal navigate to the directory you just created and run one line of code. For example if your directory was in your home directory:
     
-    cd BioinformaticsPipeline_Env/BioinformaticsPipeline
+    cd BioinformaticPipeline_Env/BioinformaticPipeline
     conda env create --prefix ./env --file environment.yml
 
 # 3) Run the example data through the pipeline to confirm your installation is correctly configured.
@@ -51,7 +51,7 @@ Move the downloaded classifier into the Data/Classifiers directory within the pi
 
 Open terminal and run the following commands:
 
-    conda activate ../BioinformaticsPipeline/env
+    conda activate ../BioinformaticPipeline/env
     Rscript "ControlScripts/ControlScriptExample.r"
 
 Note that (once that environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
