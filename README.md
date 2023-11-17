@@ -35,6 +35,7 @@ Finally copy and paste this downloaded directory into the BioinformaticsPipeline
 
 # 2) Install dependencies    
 SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this you need to open your terminal navigate to the directory you just created and run one line of code. For example if your directory was in your home directory:
+    
     cd BioinformaticsPipeline_Env/BioinformaticsPipeline
     conda env create --prefix ./env --file environment.yml
 
