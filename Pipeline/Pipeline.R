@@ -100,7 +100,7 @@
 
             OtuTableForLulu<-CreateOtuTableForLulu(Input=DadaOutput$SeqDataTable, clustering = "ESV")
 
-            MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate1, clustering="ESV", HPC=HPC, multithread=multithread)
+            MatchListForLulu<-CreateMatchlistForLulu(Input=DadaOutput$SeqDataTable ,MatchRate1, clustering="ESV", multithread=multithread)
         
         # 3.1 Run Module
             LuluOutput1<-RunLULU(TableToMergeTo=DadaOutput$SeqDataTable, MatchRate=MatchRate1, MinRelativeCo=MinRelativeCo1, RatioType=RatioType1, clustering="ESV") # inputs are Otutable and matchlist created previously
@@ -125,7 +125,6 @@
                                         threads=threads,
                                         TableToMergeTo=LuluOutput1,
                                         clustering="ESV",
-                                        HPC=HPC,
                                         SimilarityThreshold=SimilarityThreshold,
                                         multithread=multithread)
 
@@ -145,7 +144,7 @@
 
             OtuTableForLulu<-CreateOtuTableForLulu(Input=ClusterOutput, clustering="OTU")
 
-            MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate2, clustering="OTU", HPC=HPC, multithread=multithread)
+            MatchListForLulu<-CreateMatchlistForLulu(Input=ClusterOutput ,MatchRate2, clustering="OTU", multithread=multithread)
         
         # 5.1 Run Module
             LuluOutput2<-RunLULU(TableToMergeTo=ClusterOutput, MatchRate=MatchRate2, MinRelativeCo=MinRelativeCo2, RatioType=RatioType2, clustering="OTU") # inputs are Otutable and matchlist created previously

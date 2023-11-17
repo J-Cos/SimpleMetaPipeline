@@ -14,7 +14,7 @@
 
  First run this code in R
 
-    setwd() #set this to where you want the pipeline environment to be located
+    #setwd() #set this to where you want the pipeline environment to be located, otherwise it will be created in your home directory
     dir.create("BioinformaticPipeline_Env")
     dir.create((file.path("BioinformaticPipeline_Env", "FASTQs")))
     dir.create((file.path("BioinformaticPipeline_Env", "Data")))
@@ -39,6 +39,8 @@ SimpleMetaPipeline aims to make life easy by stiching together the latest bioinf
     cd BioinformaticPipeline_Env/BioinformaticPipeline
     conda env create --prefix ./env --file environment.yml
 
+This creates a conda environment containing all the software dependencies for the pipeline to work. 
+
 # 3) Run the example data through the pipeline to confirm your installation is correctly configured.
 
 Download the example data here: https://drive.google.com/drive/folders/1FUALCE8PkWZabMpG4VuMjQqL_6hMmmpZ?usp=sharing
@@ -51,10 +53,10 @@ Move the downloaded classifier into the Data/Classifiers directory within the pi
 
 Open terminal and run the following commands:
 
-    conda activate ../BioinformaticPipeline/env
-    Rscript "ControlScripts/ControlScriptExample.r"
+    conda activate ../BioinformaticPipeline/env # active conda environment
+    Rscript "ControlScripts/ControlScriptExample.r" # run pipeline within this environment
 
-Note that (once that environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
+Note that (once our conda environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of the script sequentially.
 
 If installed correctly the pipeline will run and the IntermediateOutputs and Results directories you created earlier will be populated with the outputs of the pipeline.
 

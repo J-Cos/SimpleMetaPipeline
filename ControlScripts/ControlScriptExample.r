@@ -1,8 +1,5 @@
 #Control Script Template
     # general settings
-        HPC<-FALSE
-            # set whether you are working on an HPC or your local machine
-
         path <-".."
             # this should be the path to the working directory within which you have the following folders:
                 # BioinformaticPipeline - get this from github and then create your own control file from this template - don't modify anything else
@@ -129,7 +126,7 @@
                     #desiredranks<-c("rootrank", "kingdom", "division", "phylum", "class", "order", "family", "genus")
                 #GTDB 16s
                     #desiredranks<-c("rootrank", "domain", "phylum", "class", "order", "family", "genus")
-        trainingSet= "GTDB_r202-mod_April2021.RData"
+        trainingSet= "GTDB_r207-mod_April2022.RData"
             #IDTAXA classifier to use, should be the file name for your pretrained classifier. Note these commonly used pre-trained classifiers can be downloaded here:
             # http://www2.decipher.codes/Downloads.html
         SeqsToAssign ="ESVs"

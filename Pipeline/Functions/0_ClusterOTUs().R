@@ -2,7 +2,6 @@ ClusterOTUs<-function(linkage, #either complete (vsearch) or single (swarm)
                     differences,
                     threads,
                     TableToMergeTo,
-                    HPC,
                     SimilarityThreshold,
                     clustering,
                     multithread=multithread
@@ -14,8 +13,7 @@ ClusterOTUs<-function(linkage, #either complete (vsearch) or single (swarm)
 
         ClusterOutput<-RunSwarm(differences=differences, 
                 threads=threads, 
-                TableToMergeTo=TableToMergeTo, 
-                HPC=HPC)
+                TableToMergeTo=TableToMergeTo)
 
     }else if (linkage=="complete"){
 
