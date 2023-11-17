@@ -25,12 +25,12 @@
     dir.create((file.path("BioinformaticPipeline_Env", "Data", "Raw")))
 
 This creates a directory structure as follows:
-- FASTQs - fill this directory with a subdirectory containing all runs you wish to analyse together. Within this subdirectory create further subdirectories for each run titled Run1, Run2.. RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
+- FASTQs - fill this directory with a subdirectory containing all runs you wish to analyse together. Within this subdirectory create further subdirectories for each run titled Run1, Run2... RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
 - Data - fill this directory with your taxonomic reference library training sets and metadata (raw training library fastas in "Raw", IDtaxa classifiers in "Classifiers", and BlastDbs in "BlastDBs"). You can download commonly used IDtaxa classifiers here: http://www2.decipher.codes/Downloads.html
 - IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each step in the pipeline is saved here as it is produced. Note that this means you will need to empty this directory if you wish to start a new pipeline run on data you have previously run through the pipeline.
 - Results - this is where final results will be saved. Once you have your results it is recommened you move them out of this directory into a project specific directory. This will keep the pipeline directory structure clean for future pipeline runs.
 
-Finally copy and paste this downloaded directory into the BioinformaticPipeline_Env directory without renaming it:
+Finally copy and paste this downloaded directory into the BioinformaticPipeline_Env directory and rename it to:
 - BioinformaticPipeline
 
 # 2) Install dependencies    
@@ -41,7 +41,7 @@ SimpleMetaPipeline aims to make life easy by stiching together the latest bioinf
 
 This creates a conda environment containing all the software dependencies for the pipeline to work. 
 
-# 3) Run the example data through the pipeline to confirm your installation is correctly configured.
+# 3) Run the example data through the pipeline to confirm your installation and directory structure is correctly configured.
 
 Download the example data here: https://drive.google.com/drive/folders/1FUALCE8PkWZabMpG4VuMjQqL_6hMmmpZ?usp=sharing
 
@@ -50,6 +50,31 @@ Move the Example directory contained in the downloaded .zip file (along with all
 Download a compatible IDtaxa classifier here (this example data is 16s so we need to use a 16s classifier): http://www2.decipher.codes/Classification/TrainingSets/GTDB_r207-mod_April2022.RData
 
 Move the downloaded classifier into the Data/Classifiers directory within the pipeline directory structure you created earlier.
+
+Now let's check everything lokos right. Your directory structure should look like this:
+
+└──BioinformaticPipeline_Env
+    ├── BioinformaticPipeline
+    │   ├── ControlScripts
+    │   ├── env (this was created when you ran "conda env create ..." earlier)
+    │   ├── Pipeline
+    │   ├── SupportFunctions
+    │   ├── SupportScripts
+    │   ├── environement.yml
+    │   ├── LICENSE
+    │   └── README.md
+    ├── Data
+    │   ├── BlastDBs
+    │   ├── Classifiers
+    │   │   └── GTDB_r207-mod_April2022.RData
+    │   └── Raw
+    ├── FASTQs
+    │   └── Example
+    │       ├── RandomCode_Run1_RandomCode
+    │       └── RandomCode_Run2_RandomCode
+    ├── IntermediateOutputs
+    └── Results
+
 
 Open terminal and run the following commands:
 
