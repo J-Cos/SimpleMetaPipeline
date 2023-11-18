@@ -200,9 +200,7 @@
         ConfirmInputsPresent("ClusterOutput")
         ConfirmInputsPresent("LuluOutput2")
         ConfirmInputsPresent("IdtaxaOutput")
-    if (Blast=="Yes"){
         ConfirmInputsPresent("BlastOutput")
-    }
 
     # 8.1 save sequences and clusters to results
         #SaveSequenceDataTableToDataBase(Input=IdtaxaOutput)

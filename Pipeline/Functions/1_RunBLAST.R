@@ -13,17 +13,6 @@ RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThreshold
         queryfasta<-paste0(dataname, "_", clustering, "_sequences.fasta")
 
     #blastn seqs
-    if (HPC==FALSE) {
-        system(command= paste0( "~/miniconda3/bin/blastn ",
-                                "-db ", file.path(path, "Data", "BlastDBs", dbname, dbname),
-                                " -query ", file.path(path, "IntermediateOutputs", queryfasta),
-                                " -out ", file.path(path, "IntermediateOutputs", paste0("BlastOutput_", dbname, ".out")),
-                                " -outfmt '6 qseqid sseqid pident evalue qcovs' ", 
-                                " -evalue 1e-1" #expect value must be higher than this
-                                ) 
-            )
-        }
-    else if (HPC==TRUE) {
         system(command= paste0( "blastn ",
                                 "-db ", file.path(path, "Data", "BlastDBs", dbname, dbname),
                                 " -query ", file.path(path, "IntermediateOutputs", queryfasta),
@@ -32,7 +21,6 @@ RunBLAST<-function(dbname, clustering="ESV", TableToMergeTo, assignmentThreshold
                                 " -evalue 1e-10" #expect value must be higher than this
                                 ) 
             )
-        }
     
     #read output into r
         blast_output<-read.table( file.path(path,"IntermediateOutputs", paste0("BlastOutput_", dbname, ".out")), header=FALSE, sep="\t")

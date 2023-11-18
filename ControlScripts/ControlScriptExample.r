@@ -147,7 +147,8 @@
         assignmentThresholds=c(0, 0, 80, 85, 90, 95, 97)
             #similarity thresholds at which blast assignments should be made. 
             # read from highest rank to lowest rank. Requires a value for each rank in dataset.
-        
+        Blastdesiredranks=c("Root", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+
 
 # run pipeline
     source(file.path(path, "BioinformaticPipeline", "Pipeline", "Pipeline.R"))
