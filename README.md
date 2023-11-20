@@ -3,26 +3,13 @@
 # SimpleMetaPipeline
  A simple bioinformatic pipeline for metabarcoding and meta-analyses, designed for Linux.
 
-# 1) Download pipeline and create directory structure
+# 1) Create directory structure and download the pipeline
 
- First download the pipeline code from this repository. This contains 4 subdirectories as follows:
-- Pipeline: the main directory containing the pipeline itself (Pipeline.R) and a directory (Functions) containing all the functions called by the pipeline. You do not need to modify these scripts.
-- ControlScripts: this directory contains a single example control script. First use this example to check your installation is working, and then modify it to create a control script for your own data. This is the only directory where you should modify scripts.
-- 2 other directories not required to run the pipeline. These contain supporting functionality that is under develoment.
+ First you need to build the expected directory structure, so the pipeline knows where to find the inputs and can provide outputs in the expected locations. This exact directory structure is required for the pipeline to work.
 
- Then you need to build the expected directory structure, so the pipeline knows where to find the inputs and can provide outputs in the expected locations. This exact directory structure is required for the pipeline to work.
-
- First run this code in R
-
-    #setwd() #set this to where you want the pipeline environment to be located, otherwise it will be created in your home directory
-    dir.create("BioinformaticPipeline_Env")
-    dir.create((file.path("BioinformaticPipeline_Env", "FASTQs")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data")))
-    dir.create((file.path("BioinformaticPipeline_Env", "IntermediateOutputs")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Results")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data", "BlastDBs")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Classifiers")))
-    dir.create((file.path("BioinformaticPipeline_Env", "Data", "Raw")))
+ To do this open a terminal window and run the code below. By default this will create your pipeline directory in home, if you wish to create it somewhere else just change to that directory before running the below code:
+ 
+    mkdir -p BioinformaticPipeline_Env/{FASTQs,Data/{BlastDBs,Classifiers,Raw},IntermediateOutputs,Results}
 
 This creates a directory structure as follows:
 - FASTQs - fill this directory with a subdirectory containing all runs you wish to analyse together. Within this subdirectory create further subdirectories for each run titled Run1, Run2... RunN, each filled with the unmerged multiplexed raw FASTQ files from a single sequencing run
@@ -30,14 +17,29 @@ This creates a directory structure as follows:
 - IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each step in the pipeline is saved here as it is produced. Note that this means you will need to empty this directory if you wish to start a new pipeline run on data you have previously run through the pipeline.
 - Results - this is where final results will be saved. Once you have your results it is recommened you move them out of this directory into a project specific directory. This will keep the pipeline directory structure clean for future pipeline runs.
 
-Finally copy and paste this downloaded directory into the BioinformaticPipeline_Env directory and rename it to:
+Then we need to download the pipeline code from this repository and into our directory structure. If you have git installed you can run the code below:
+
+    cd BioinformaticPipeline_Env
+    git clone https://github.com/J-Cos/SimpleMetaPipeline BioinformaticPipeline
+
+Alternatively you can do this manually by pressing the button marked "< > Code" above and then choosing "Download ZIP from the dropdown menu. Once donwloaded unzip the file, copy it into the BioinformaticPipeline_Env directory and rename it to:
 - BioinformaticPipeline
 
+This contains 4 subdirectories as follows:
+- Pipeline: the main directory containing the pipeline itself (Pipeline.R) and a directory (Functions) containing all the functions called by the pipeline. You do not need to modify these scripts.
+- ControlScripts: this directory contains a single example control script. First use this example to check your installation is working, and then modify it to create a control script for your own data. This is the only directory where you should modify scripts.
+- 2 other directories not required to run the pipeline. These contain supporting functionality that is under develoment.
+
 # 2) Install dependencies    
-SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this you need to open your terminal navigate to the directory you just created and run one line of code. For example if your directory was in your home directory:
+SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this we use conda, first you need to install conda. (We recommend miniconda if you will only be using conda in the context of SimpleMetaPipeline). Installation instructions are available here:
+https://conda.io/projects/conda/en/latest/user-guide/install/index.html
+
+(N.B. though the pipeline is designed for linux if you are installing on macOS note that you will need to install the osx-64 conda installer rather than osx-arm64 as the bioconda channel does not compile for osx-arm64 at this time. See here: https://github.com/conda/conda/issues/11216)
+
+Once conda is installed and initialised you need to open a new terminal window navigate to the pipeline directory you created earlier and run one line of code. This single line tells conda to install everything else you need! For example, if your pipeline directory was created in your home directory:
     
-    cd BioinformaticPipeline_Env # changes to our new directory
-    conda env create --prefix ./BioinformaticPipeline/env --file BioinformaticPipeline/environment.yml # creates the conda environment
+    cd BioinformaticPipeline_Env 
+    conda env create --prefix ./BioinformaticPipeline/env --file BioinformaticPipeline/environment.yml 
 
 This creates a conda environment containing all the software dependencies for the pipeline to work. 
 
@@ -77,12 +79,11 @@ Now let's check everything looks right. Your directory structure should look lik
     └── Results
 ```
 
-If it does then you are ready to run the pipeline. Open the terminal and run the following commands:
+If it does then you are ready to run the pipeline. Open a new terminal window and run the following commands:
 
-    cd BioinformaticPipeline_Env # changes to the desired directory
-
-    conda activate ./BioinformaticPipeline/env # active conda environment
-    Rscript "BioinformaticPipeline/ControlScripts/ControlScriptExample.r" # run pipeline within this environment
+    cd BioinformaticPipeline_Env
+    conda activate ./BioinformaticPipeline/env 
+    Rscript "BioinformaticPipeline/ControlScripts/ControlScriptExample.r"
 
 Note that (once our conda environment is activated) this is equivalent to opening ControlScriptExample.R in a code editor (e.g. Visual Studio Code or R Studio) and running each line of ControlScriptExample.r sequentially.
 
@@ -105,8 +106,8 @@ Results contains 9 files as follows
 
 # 4) Now you can run your own data, create a new control script from the template and run the pipeline from this control script as you did before!
 
-Once your have results take a look at SimpleMetaPackage (https://github.com/J-Cos/SimpleMetaPackage) which provides tools to easily convert pipeline outputs to phyloseq objects, and also enables multi-algorithm agreement tests.
+All parameters in the control script can be modified as desired to suit your own data. The example control script provided is heavily commented, and includes links to the underlying tools, to guide you in changing these parameters as desired. Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on vidual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
 
-Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on vidual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
+Once your have results take a look at SimpleMetaPackage (https://github.com/J-Cos/SimpleMetaPackage) that provides tools to easily convert pipeline outputs to phyloseq objects, and also enables multi-algorithm agreement tests.
 
 If you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset. This is because the pipeline checks which intermediate outputs are available and starts running from the furthest point the pipeline previously reached. This is a feature as it allows an interrupted run to be start from the last completed step, rather than needing to start from the beginning again.
