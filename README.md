@@ -34,7 +34,7 @@ This contains 4 subdirectories as follows:
 SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this we use conda, first you need to install conda. (We recommend miniconda if you will only be using conda in the context of SimpleMetaPipeline). Installation instructions are available here:
 https://conda.io/projects/conda/en/latest/user-guide/install/index.html
 
-(N.B. though the pipeline is designed for linux if you are installing on macOS note that you will need to install the osx-64 conda installer rather than osx-arm64 as the bioconda channel does not compile for osx-arm64 at this time. See here: https://github.com/conda/conda/issues/11216)
+> ⚠️ N.B. though the pipeline is designed for linux if you are installing on macOS note that you will need to install the osx-64 conda installer rather than osx-arm64 as the bioconda channel does not compile for osx-arm64 at this time. See here: https://github.com/conda/conda/issues/11216
 
 Once conda is installed and initialised you need to open a new terminal window navigate to the pipeline directory you created earlier and run one line of code. This single line tells conda to install everything else you need! For example, if your pipeline directory was created in your home directory:
     
