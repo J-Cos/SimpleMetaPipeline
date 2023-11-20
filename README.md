@@ -3,7 +3,7 @@
 # SimpleMetaPipeline
  A simple bioinformatic pipeline for metabarcoding and meta-analyses, designed for Linux.
 
-# 1) Create directory structure and download the pipeline
+# 1) Create directory structure
 
  First you need to build the expected directory structure, so the pipeline knows where to find the inputs and can provide outputs in the expected locations. This exact directory structure is required for the pipeline to work.
 
@@ -16,6 +16,8 @@ This creates a directory structure as follows:
 - Data - fill this directory with your taxonomic reference library training sets and metadata (raw training library fastas in "Raw", IDtaxa classifiers in "Classifiers", and BlastDbs in "BlastDBs"). You can download commonly used IDtaxa classifiers here: http://www2.decipher.codes/Downloads.html
 - IntermediateOutputs - this will be populated by the pipeline as it runs, it will enable the pipeline to be run over multiple sessions as the output from each step in the pipeline is saved here as it is produced. Note that this means you will need to empty this directory if you wish to start a new pipeline run on data you have previously run through the pipeline.
 - Results - this is where final results will be saved. Once you have your results it is recommened you move them out of this directory into a project specific directory. This will keep the pipeline directory structure clean for future pipeline runs.
+
+# 2) Download the pipeline
 
 Then we need to download the pipeline code from this repository and into our directory structure. If you have git installed you can run the code below:
 
@@ -30,7 +32,7 @@ This contains 4 subdirectories as follows:
 - ControlScripts: this directory contains a single example control script. First use this example to check your installation is working, and then modify it to create a control script for your own data. This is the only directory where you should modify scripts.
 - 2 other directories not required to run the pipeline. These contain supporting functionality that is under develoment.
 
-# 2) Install dependencies    
+# 3) Install dependencies    
 SimpleMetaPipeline aims to make life easy by stiching together the latest bioinformatic tools for metabarcoding data. Of course these tools have to be installed for SimpleMetaPipeline to work. To do this we use conda, first you need to install conda. (We recommend miniconda if you will only be using conda in the context of SimpleMetaPipeline). Installation instructions are available here:
 https://conda.io/projects/conda/en/latest/user-guide/install/index.html
 
@@ -43,7 +45,7 @@ Once conda is installed and initialised you need to open a new terminal window n
 
 This creates a conda environment containing all the software dependencies for the pipeline to work. 
 
-# 3) Run the example data through the pipeline to confirm your installation and directory structure is correctly configured.
+# 4) Run the example data through the pipeline to confirm your installation and directory structure is correctly configured.
 
 Download the example data here: https://drive.google.com/drive/folders/1FUALCE8PkWZabMpG4VuMjQqL_6hMmmpZ?usp=sharing
 
@@ -91,7 +93,7 @@ If you've done everything correctly the pipeline will run and the IntermediateOu
 
 IntermediateOutputs files include the output after each algorithm is applied (e.g. Example_DadaOutput.RDS and Example_IdtaxaOutput.RDS)
 
-Results contains 9 files as follows
+Results will contain 9 files as follows
 - Main results files
     - Example_SeqDataTable.RDS (the main result of the pipeline, use this as the input to SimpleMetaPackage::SeqDataTable2Phyloseq(), see below)
     - Example_SeqDataTable.csv (the same information in csv format, for easy visual inspection)
@@ -106,8 +108,8 @@ Results contains 9 files as follows
 
 # 4) Now you can run your own data, create a new control script from the template and run the pipeline from this control script as you did before!
 
-All parameters in the control script can be modified as desired to suit your own data. The example control script provided is heavily commented, and includes links to the underlying tools, to guide you in changing these parameters as desired. Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on vidual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
+All parameters in the control script can be modified as desired to suit your own data. The example control script provided is heavily commented, and includes links to the underlying tools, to guide you in changing these parameters as desired. Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. Remember these can differ across multiple runs. See here for an example of how to find these parameters based on visual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
 
-Once your have results take a look at SimpleMetaPackage (https://github.com/J-Cos/SimpleMetaPackage) that provides tools to easily convert pipeline outputs to phyloseq objects, and also enables multi-algorithm agreement tests.
+Once you have results take a look at SimpleMetaPackage (https://github.com/J-Cos/SimpleMetaPackage), which provides tools to easily convert pipeline outputs to phyloseq objects, and also enables multi-algorithm agreement tests.
 
 If you want to rerun the pipeline on the same dataset for any reason you will need to delete the intermediate outputs from previous runs on that dataset. This is because the pipeline checks which intermediate outputs are available and starts running from the furthest point the pipeline previously reached. This is a feature as it allows an interrupted run to be start from the last completed step, rather than needing to start from the beginning again.
