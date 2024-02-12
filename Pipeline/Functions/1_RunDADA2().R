@@ -21,7 +21,7 @@
                     RunDadaTables<-readRDS(file=file.path(path, "IntermediateOutputs", paste0(dataname,"_RunDadaTables.RDS") ))
                 }
                 #adjust number of runs so loop over uncompleted runs only
-                if(exists("RunESVtables")) {NumberCompletedRuns<-length(RunESVtables)}
+                if(exists("RunESVtables")) {NumberCompletedRuns<-length(RunESVtables)} else {NumberCompletedRuns<-0}
             
             if (NumberCompletedRuns<NumberOfRuns) {
                 for (Run in (NumberCompletedRuns+1):NumberOfRuns) {
@@ -146,7 +146,7 @@
                     ESVtable<-seqtab
 
                     # standardise orientations if each sample consisted of FO_R1, FO_R2, RO_R1, RO_R2 (i.e read were in mixed orientations)
-                    if (MixedOrientation) {
+                    if (MixedOrientation[NumberCompletedRuns+Run]) {
                         #get Reverse oriented subsamples, filter out sequences only appearing in forward orientation, reverse complement remaining, and reinsert them into seq table
                         RevSamples<-ESVtable[!grepl('_FO',  rownames(ESVtable), fixed=T),]
                         RevESVtable<-RevSamples[,colSums(RevSamples)!=0]            
@@ -164,6 +164,8 @@
 
                         #merge forward and reverse complemented reverses, this merges both across sequences (standard) and across samples ( achieved through repeats=sum)
                         ESVtable<-mergeSequenceTables(ForESVtable, ReorientedESVtable, repeats="sum")
+                        print("unmixing orientations Complete")
+
                     }
 
                     RunESVtables[[Run]]<-ESVtable

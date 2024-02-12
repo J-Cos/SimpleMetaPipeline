@@ -51,8 +51,9 @@
         pool="pseudo"
             #TRUE, FALSE, or pseudo. pseudo pooling approximates the effect of denoising with pooled samples, but with
             # linearly increasing computational time (ca. doubled compared to no pooling)
-        MixedOrientation="FALSE"
-            # TRUE or FALSE. FALSE (default) means dada2 proceeds in the normal fashion. TRUE means that _RO and _FO 
+        MixedOrientation=c(0, 0)
+            # logical vectors of TRUE or FALSE, must have a length of the NumberOfRuns. Note TRUE and FALSE can also be written as 1 and 0.
+            # FALSE (default) means dada2 proceeds in the normal fashion. TRUE means that _RO and _FO 
             # suffixes will be looked for in the sample names to enable samples containing reverse orientation (RO) sequences 
             # to be reverse complemented and then merged into the matching sample containing the forward orientated sequences.
         ReadType="Paired-end"
