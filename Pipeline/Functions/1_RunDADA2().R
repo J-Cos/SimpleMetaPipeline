@@ -146,7 +146,7 @@
                     ESVtable<-seqtab
 
                     # standardise orientations if each sample consisted of FO_R1, FO_R2, RO_R1, RO_R2 (i.e read were in mixed orientations)
-                    if (MixedOrientation[NumberCompletedRuns+Run]) {
+                    if (MixedOrientation[Run]) {
                         #get Reverse oriented subsamples, filter out sequences only appearing in forward orientation, reverse complement remaining, and reinsert them into seq table
                         RevSamples<-ESVtable[!grepl('_FO',  rownames(ESVtable), fixed=T),]
                         RevESVtable<-RevSamples[,colSums(RevSamples)!=0]            
