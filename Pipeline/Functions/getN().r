@@ -1,3 +1,3 @@
-        getN <- function(x) {
-            sum(getUniques(x))
-        }
+getN <- function(x) {
+    sum(getUniques(x))
+}

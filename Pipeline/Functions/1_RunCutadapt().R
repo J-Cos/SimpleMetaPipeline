@@ -1,5 +1,5 @@
 
-#RunCutadapt(FWD ="ACCTGCGGARGGATCA",  ## CHANGE ME to your forward primer sequence
+# RunCutadapt(FWD ="ACCTGCGGARGGATCA",  ## CHANGE ME to your forward primer sequence
 #            REV = "GAGATCCRTTGYTRAAAGTT",  ## CHANGE ME...
 #            multithread=TRUE) #make FALSE for windows
 
@@ -15,7 +15,6 @@ RunCutadapt<-function(multithread, FWD, REV, dataname=NULL, UseCutadapt=FALSE) {
         FWD.orients <- allOrients(FWD)
         REV.orients <- allOrients(REV)
 
-
         # Extract sample names, assuming filenames have format: SAMPLENAME_RN_001.fastq.gz
         SampleNames <- sapply(strsplit(basename(fnFs), "_R1_001.fastq"), `[`, 1)
         
@@ -23,18 +22,18 @@ RunCutadapt<-function(multithread, FWD, REV, dataname=NULL, UseCutadapt=FALSE) {
         filtFs<-createOutputFilePaths(suffix="_F_filt.fastq.gz", outputDirectoryPrefix="_prefilteredsequences")
         filtRs<-createOutputFilePaths(suffix="_R_filt.fastq.gz", outputDirectoryPrefix="_prefilteredsequences")
 
-        #The presence of ambiguous bases (Ns) in the sequencing reads makes accurate mapping of short primer sequences difficult. Next we are going to “pre-filter” the sequences just to remove those with Ns, but perform no other filtering.
+        # The presence of ambiguous bases (Ns) in the sequencing reads makes accurate mapping of short primer sequences difficult. 
+        # Next we are going to “pre-filter” the sequences just to remove those with Ns, but perform no other filtering.
         out <- dada2::filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN=0, rm.phix=TRUE, compress=TRUE, multithread=multithread, verbose=TRUE) 
 
-
         # We are now ready to count the number of times the primers appear in the forward and reverse read, 
-        #while considering all possible primer orientations. Identifying and counting the primers on one set of 
-        #paired end FASTQ files is sufficient, 
-        #assuming all the files were created using the same library preparation, so we’ll just process the first sample.
-    
+        # while considering all possible primer orientations. Identifying and counting the primers on one set of 
+        # paired end FASTQ files is sufficient, 
+        # assuming all the files were created using the same library preparation, so we’ll just process the first sample.
         PrimerCountSamplesList<-list()
         for (i in seq_along(filtFs)) {
-            PrimerCountSamplesList[[i]]<-rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = filtFs[[i]]), 
+            PrimerCountSamplesList[[i]]<-rbind(
+                FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = filtFs[[i]]), 
                 FWD.ReverseReads = sapply(FWD.orients, primerHits, fn = filtRs[[i]]), 
                 REV.ForwardReads = sapply(REV.orients, primerHits, fn = filtFs[[i]]), 
                 REV.ReverseReads = sapply(REV.orients, primerHits, fn = filtRs[[i]]))
@@ -56,9 +55,17 @@ RunCutadapt<-function(multithread, FWD, REV, dataname=NULL, UseCutadapt=FALSE) {
 
         # Run Cutadapt
         for(i in seq_along(fnFs)) {
-        system2("cutadapt", args = c(R1.flags, R2.flags, "-n", 2, # -n 2 required to remove FWD and REV from reads
-                                    "-o", fnFs.cut[i], "-p", fnRs.cut[i], # output files
-                                    filtFs[i], filtRs[i])) # input files
+            system2("cutadapt", args = c(
+                R1.flags, 
+                R2.flags, 
+                "-n", 
+                2, # -n 2 required to remove FWD and REV from reads
+                "-o", 
+                fnFs.cut[i], 
+                "-p", 
+                fnRs.cut[i], # output files
+                filtFs[i], 
+                filtRs[i])) # input files
         }
 
         PrimerCountCutadaptedSamplesList<-list()
@@ -68,7 +75,6 @@ RunCutadapt<-function(multithread, FWD, REV, dataname=NULL, UseCutadapt=FALSE) {
             REV.ForwardReads = sapply(REV.orients, primerHits, fn = fnFs.cut[[i]]), 
             REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs.cut[[i]]))
         }
-
 
         return(list("PrimerCountSamplesList"=PrimerCountSamplesList, "PrimerCountCutadaptedSamplesList"=PrimerCountCutadaptedSamplesList))
     }
