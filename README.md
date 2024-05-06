@@ -116,7 +116,11 @@ Results will contain 9 files as follows
 
 # 5) Now you can run your own data, create a new control script from the template and run the pipeline from this control script as you did before!
 
-All parameters in the control script are adjustable to suit your own data. The example control script provided is heavily commented, and includes links to the underlying tools, to guide you in changing these parameters as needed. Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. These optimal filtering and trimming parameters will differ across different MiSeq runs. See here for an example of how to find these optimal parameters for each run based on visual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html
+All parameters in the control script are adjustable to suit your own data. The example control script provided is heavily commented, and includes links to the underlying tools, to guide you in changing these parameters as needed. 
+
+Remember you will need to find the optimal filtering and trimming parameters for your own sequences first. These optimal filtering and trimming parameters will differ across different MiSeq runs. See here for an example of how to find these optimal parameters for each run based on visual inspection of read quality profiles: https://benjjneb.github.io/dada2/tutorial.html.
+
+You will also need to find an appropriate Idtaxa clssifier, BLAST database, or both for your marker gene. A range of pre-trained Idtaxa classifiers are available here: http://www2.decipher.codes/Downloads.html. If required, instructions for training your own Idtaxa classifier / BLAST database are available in the published guidance for each tool, we do not duplicate this here.
 
 Once you have results take a look at SimpleMetaPackage (https://github.com/J-Cos/SimpleMetaPackage), which provides tools to easily convert pipeline outputs to phyloseq objects, and also enables multi-algorithm agreement tests.
 
