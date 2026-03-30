@@ -1,0 +1,38 @@
+name: R Package Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: environment.yml
+          activate-environment: SimpleMetaPipeline-env
+          auto-activate-base: false
+
+      - name: Install LULU from GitHub
+        run: |
+          Rscript -e 'devtools::install_github("tobiasgf/lulu")'
+
+      - name: Install package
+        run: |
+          Rscript -e 'devtools::install(".", dependencies = FALSE)'
+
+      - name: Run unit tests
+        run: |
+          Rscript -e 'devtools::test(reporter = "summary")'
+
+      - name: R CMD check
+        run: |
+          Rscript -e 'devtools::check(error_on = "error")'

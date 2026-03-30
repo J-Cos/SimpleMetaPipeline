@@ -1,0 +1,31 @@
+#test taxonomies succesfully merge - i.e there are not duplicate entries - at higher ranks in particular
+
+#1 set seed for replication
+    set.seed(0.1)
+
+#2 dependencies    
+    if (!require("pacman")) install.packages("pacman")
+    pacman::p_load( tidyverse,
+                    seqinr,
+                    DECIPHER,
+                    Biostrings
+                    )
+
+    seqs <- readDNAStringSet( '/home/j/Dropbox/BioinformaticPipeline_Env/Data/Classifiers/ARMS_classifier_combinedSeqs.fasta')
+
+    blastTaxidMap<-data.frame(  ID=paste0("Seq", 1:length(seqs)),
+                                Taxa=names(seqs))
+    
+    names(seqs)<-blastTaxidMap$SeqId
+    writeXStringSet(seqs, "/home/j/Dropbox/BioinformaticPipeline_Env/Data/BlastDBs/MidoriBiocodeBlast.fasta", format="fasta", width=10000)
+    write.table(blastTaxidMap, "/home/j/Dropbox/BioinformaticPipeline_Env/Data/BlastDBs/MidoriBiocodeBlastTaxidMap.txt", quote=FALSE, sep=" ", row.names=FALSE, col.names=FALSE)
+
+
+
+~/miniconda3/bin/makeblastdb -in "/home/j/Dropbox/BioinformaticPipeline_Env/Data/BlastDBs/MidoriBiocodeBlast.fasta" -parse_seqids -blastdb_version 5 -title "MidoriBiocodeBlastDB" -out "MidoriBiocodeBlastDB" -dbtype nucl
+
+
+
+
+
+           

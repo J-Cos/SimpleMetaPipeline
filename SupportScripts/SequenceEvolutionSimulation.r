@@ -8,8 +8,8 @@
 
     rankSuffixes<-c("-iota", "-ota", "-ia", "-ales", "-aceae", "-us", "-species")
     numranks<-7
-    minGroupsPerRank<-2
-    maxGroupsPerRank<-6
+    minGroupsPerRank<-3
+    maxGroupsPerRank<-7
     mutationRate<-10
     primerLength<-300
 

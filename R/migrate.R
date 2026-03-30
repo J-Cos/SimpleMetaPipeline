@@ -1,0 +1,191 @@
+#' Migrate a legacy control script to smp_config format
+#'
+#' Reads a pre-v3 control script (which defines global variables like
+#' `dataname`, `NumberOfRuns`, etc.) and generates the equivalent
+#' `smp_config()` call. The generated code is printed to the console and
+#' optionally written to a file.
+#'
+#' @param control_script_path Path to the old control script `.r` file.
+#' @param output_path Optional path to write the migrated script. If `NULL`,
+#'   the code is only printed.
+#'
+#' @return Invisible character string of the generated code.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' smp_migrate("ControlScripts/ControlScriptExample.r")
+#' smp_migrate("ControlScripts/ControlScriptExample.r",
+#'             output_path = "my_config.R")
+#' }
+smp_migrate <- function(control_script_path, output_path = NULL) {
+    if (!file.exists(control_script_path)) {
+        cli::cli_abort("Control script not found: {.path {control_script_path}}")
+    }
+
+    # Parse the old script in a clean environment to extract variable values
+    env <- new.env(parent = baseenv())
+    # Provide a dummy `source` so the pipeline won't actually run
+    env$source <- function(...) invisible(NULL)
+    tryCatch(
+        sys.source(control_script_path, envir = env),
+        error = function(e) {
+            cli::cli_warn(c(
+                "Could not fully parse the control script",
+                "i" = "Some variables may be missing: {conditionMessage(e)}"
+            ))
+        }
+    )
+
+    # Map old variable names → smp_config argument names
+    get_val <- function(old_name, default = "NULL") {
+        if (exists(old_name, envir = env, inherits = FALSE)) {
+            val <- get(old_name, envir = env)
+            return(val)
+        }
+        return(default)
+    }
+
+    # Format R values for code generation
+    fmt <- function(val) {
+        if (is.null(val) || identical(val, "NULL")) return("NULL")
+        if (is.logical(val)) return(toupper(as.character(val)))
+        if (is.character(val) && length(val) == 1) return(paste0('"', val, '"'))
+        if (is.character(val)) {
+            return(paste0('c(', paste0('"', val, '"', collapse = ', '), ')'))
+        }
+        if (is.list(val)) {
+            inner <- sapply(val, function(x) {
+                paste0("c(", paste(x, collapse = ", "), ")")
+            })
+            return(paste0("list(", paste(inner, collapse = ", "), ")"))
+        }
+        if (is.numeric(val) && length(val) > 1) {
+            return(paste0("c(", paste(val, collapse = ", "), ")"))
+        }
+        return(as.character(val))
+    }
+
+    # Extract and map values
+    path_val <- get_val("path", "../BioinformaticPipeline_Env")
+    dataname_val <- get_val("dataname", "Example")
+    data_path_val <- get_val("dataPath", NULL)
+    multithread_val <- get_val("multithread", 4L)
+
+    use_cutadapt_val <- get_val("UseCutadapt", FALSE)
+    fwd_val <- get_val("FWD", "ACTG")
+    rev_val <- get_val("REV", "ACTG")
+
+    n_runs_val <- get_val("NumberOfRuns", 1L)
+    trunc_len_val <- get_val("truncLen", list(c(150, 150)))
+    trim_left_val <- get_val("trimLeft", list(c(0, 0)))
+    max_n_val <- get_val("maxN", 0L)
+    max_ee_val <- get_val("maxEE", c(2, 2))
+    trunc_q_val <- get_val("truncQ", 2L)
+    desired_range_val <- get_val("DesiredSequenceLengthRange", NULL)
+    pool_val <- get_val("pool", "pseudo")
+
+    # Handle MixedOrientation — old script stores as string "FALSE"/"TRUE"
+    mixed_val <- get_val("MixedOrientation", FALSE)
+    if (is.character(mixed_val)) mixed_val <- as.logical(mixed_val)
+
+    # ReadType: old uses "Paired-end", new uses "paired-end"
+    read_type_val <- get_val("ReadType", "Paired-end")
+    if (is.character(read_type_val)) read_type_val <- tolower(read_type_val)
+
+    lulu1_mr <- get_val("MatchRate1", 90)
+    lulu1_co <- get_val("MinRelativeCo1", 0.95)
+    lulu1_rt <- get_val("RatioType1", "min")
+
+    linkage_val <- get_val("linkage", "complete")
+    diff_val <- get_val("differences", 1L)
+    sim_val <- get_val("SimilarityThreshold", 0.97)
+    threads_val <- get_val("threads", 4L)
+
+    lulu2_mr <- get_val("MatchRate2", 90)
+    lulu2_co <- get_val("MinRelativeCo2", 0.95)
+    lulu2_rt <- get_val("RatioType2", "min")
+
+    use_idtaxa_val <- get_val("IDTAXA", TRUE)
+    training_set_val <- get_val("trainingSet", NULL)
+    desired_ranks_val <- get_val("desiredranks", NULL)
+    seqs_val <- get_val("SeqsToAssign", "ESVs")
+    threshold_val <- get_val("threshold", 40)
+    parallel_val <- get_val("parallel", FALSE)
+
+    use_blast_val <- get_val("Blast", FALSE)
+    dbname_val <- get_val("dbname", NULL)
+    assign_thresh_val <- get_val("assignmentThresholds",
+                                 c(0, 0, 80, 85, 90, 95, 97))
+    blast_ranks_val <- get_val("Blastdesiredranks", NULL)
+
+    # Generate the new script
+    code <- paste0(
+        '###########################\n',
+        '# Migrated from: ', basename(control_script_path), '\n',
+        '# Generated by smp_migrate() on ', Sys.Date(), '\n',
+        '###########################\n\n',
+        'library(SimpleMetaPipeline)\n\n',
+        'config <- smp_config(\n',
+        '    path            = ', fmt(path_val), ',\n',
+        '    dataname        = ', fmt(dataname_val), ',\n',
+        '    data_path       = ', fmt(data_path_val), ',\n',
+        '    multithread     = ', fmt(multithread_val), ',\n',
+        '\n',
+        '    use_cutadapt    = ', fmt(use_cutadapt_val), ',\n',
+        '    fwd_primer      = ', fmt(fwd_val), ',\n',
+        '    rev_primer      = ', fmt(rev_val), ',\n',
+        '\n',
+        '    n_runs          = ', fmt(as.integer(n_runs_val)), 'L,\n',
+        '    trunc_len       = ', fmt(trunc_len_val), ',\n',
+        '    trim_left       = ', fmt(trim_left_val), ',\n',
+        '    max_n           = ', fmt(max_n_val), 'L,\n',
+        '    max_ee          = ', fmt(max_ee_val), ',\n',
+        '    trunc_q         = ', fmt(trunc_q_val), 'L,\n',
+        '    desired_seq_length_range = ', fmt(desired_range_val), ',\n',
+        '    pool            = ', fmt(pool_val), ',\n',
+        '    mixed_orientation = ', fmt(mixed_val), ',\n',
+        '    read_type       = ', fmt(read_type_val), ',\n',
+        '\n',
+        '    lulu1_match_rate           = ', fmt(lulu1_mr), ',\n',
+        '    lulu1_min_rel_cooccurrence = ', fmt(lulu1_co), ',\n',
+        '    lulu1_ratio_type           = ', fmt(lulu1_rt), ',\n',
+        '\n',
+        '    linkage              = ', fmt(linkage_val), ',\n',
+        '    differences          = ', fmt(as.integer(diff_val)), 'L,\n',
+        '    similarity_threshold = ', fmt(sim_val), ',\n',
+        '    threads              = ', fmt(as.integer(threads_val)), 'L,\n',
+        '\n',
+        '    lulu2_match_rate           = ', fmt(lulu2_mr), ',\n',
+        '    lulu2_min_rel_cooccurrence = ', fmt(lulu2_co), ',\n',
+        '    lulu2_ratio_type           = ', fmt(lulu2_rt), ',\n',
+        '\n',
+        '    use_idtaxa       = ', fmt(use_idtaxa_val), ',\n',
+        '    training_set     = ', fmt(training_set_val), ',\n',
+        '    desired_ranks    = ', fmt(desired_ranks_val), ',\n',
+        '    seqs_to_assign   = ', fmt(seqs_val), ',\n',
+        '    idtaxa_threshold = ', fmt(threshold_val), ',\n',
+        '    idtaxa_parallel  = ', fmt(parallel_val), ',\n',
+        '\n',
+        '    use_blast           = ', fmt(use_blast_val), ',\n',
+        '    blast_db            = ', fmt(dbname_val), ',\n',
+        '    blast_thresholds    = ', fmt(assign_thresh_val), ',\n',
+        '    blast_desired_ranks = ', fmt(blast_ranks_val), '\n',
+        ')\n\n',
+        'smp_run(config)\n'
+    )
+
+    cli::cli_h1("Migrated control script")
+    cat(code)
+
+    if (!is.null(output_path)) {
+        writeLines(code, output_path)
+        cli::cli_alert_success("Written to {.path {output_path}}")
+    }
+
+    cli::cli_alert_info(
+        "Review the generated config and adjust any values as needed"
+    )
+
+    invisible(code)
+}

@@ -1,6 +1,6 @@
 ######################################
 # Secondary demlutiplexing and unmixing orientations for primary demultiplexed mixed orientation Illumina MiSeq COI data
-# Cross-pacific ARMS data
+# Cross-pacific ARMS data (Dita)
 #####################################
 
 
@@ -34,7 +34,7 @@
 
         #get list of fastqs for sequences for which the adapter was determined (i.e. exclude undetermined)
         RunFastqs_withUndetermined<-list.files(file.path(path, "RunsSplitByAdapter", Run), pattern="fastq", full.names = TRUE)
-        RunFastqs<-RunFastqs_withUndetermined[-((length(RunFastqs_withUndetermined)-1):length(RunFastqs_withUndetermined))]
+        RunFastqs<-RunFastqs_withUndetermined#[-((length(RunFastqs_withUndetermined)-1):length(RunFastqs_withUndetermined))]
 
         #get list of barcode files
         RunBarcodes<-sort(list.files(file.path(path, "Barcodes", Barcodes), pattern=".txt", full.names = TRUE))
@@ -43,7 +43,7 @@
         if (length(RunFastqs)/2!=length(RunBarcodes)) { break }
 
         #loop over each adapter in run
-        for (a in (1:length(RunBarcodes))) {
+        for (a in (4:length(RunBarcodes))) {
 
             # get data for single adapter
             AdapterFastqs<-RunFastqs[ (a*2-1) : (a*2) ]
@@ -59,21 +59,9 @@
             #prefilter fastqs
             #The presence of ambiguous bases (Ns) in the sequencing reads makes accurate mapping of short primer sequences difficult. Next we are going to “pre-filter” the sequences just to remove those with Ns, but perform no other filtering.
             out <- dada2::filterAndTrim(AdapterFastqs[1], path_filtered[1], AdapterFastqs[2], path_filtered[2], maxN=0, rm.phix=TRUE, compress=TRUE, multithread=TRUE, verbose=TRUE) 
-
-            #function to # Create all orientations of the input sequence
-            allOrients <- function(primer) {
-                require(Biostrings)
-                dna <- DNAString(primer)  # The Biostrings works w/ DNAString objects rather than character vectors
-                orients <- c(Forward = dna, Complement = complement(dna), Reverse = reverse(dna), 
-                    RevComp = reverseComplement(dna))
-                return(sapply(orients, toString))  # Convert back to character vector
-            }
+            print(paste0("Run ", r, ": Adapter ", a, " filtering complete"))
 
 
-            #create all orients
-            barcode_orients_l<-lapply(Barcodes_df$Barcode, allOrients)
-            
-            
             FO1<-lapply(paste0(Barcodes_df$Barcode, mlCOIintF), DNAString)
             RO1<-lapply(paste0(Barcodes_df$Barcode, jgHCO2198), DNAString)
             RO2<-lapply(FO1, reverseComplement)
@@ -100,9 +88,11 @@
             #now run cutadapt
             system2( "cutadapt", args= c( "-e", 0.1, "--no-indels",  "--minimum-length", 1,  # options (10% error rate, no insertion/deletions, and zero length seqs discarded)
                                         "-g", paste0("file:",path_barcodePrimerFastas),  "-G", paste0("file:",path_barcodePrimerFastas),       #barcodes
-                                        "-o",   "/home/j/Dropbox/BioinformaticPipeline_Env/FASTQs/CrossPacific_2015/{name}_R1_001.fastq", "-p", "/home/j/Dropbox/BioinformaticPipeline_Env/FASTQs/CrossPacific_2015/{name}_R2_001.fastq",
+                                        "-o",   paste0("/home/j/Dropbox/BioinformaticPipeline_Env/FASTQs/DitaCOI/",Run, "/{name}_R1_001.fastq"), "-p", paste0("/home/j/Dropbox/BioinformaticPipeline_Env/FASTQs/DitaCOI/",Run, "/{name}_R2_001.fastq"),
                                     path_filtered[[1]] ,  path_filtered[[2]]                       #inputs
                                 )
             ) 
+            
+            print(paste0("Run ", r, ": Adapter ", a, " cutadapt complete"))
         }
     }

@@ -1,0 +1,14 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^env$
+^environment\.yml$
+^SupportScripts$
+^SupportFunctions$
+^ControlScripts$
+^Pipeline$
+^Rplots\.pdf$
+^README\.Rmd$
+^LICENSE\.md$
+^\.gitattributes$
+^\.agents$

@@ -5,8 +5,22 @@ CreateTaxid<-function() {
 
 
         ranks <- readLines("../../PNG_OceanAcidification/Data/microgreen_algaebase.tax")
-        taxa <- setNames(c("domain", "phylum", "order", "family", "genus"),
-                c("d__", "p__", "o__", "f__", "g__"))
+
+
+
+        ranks<-Taxonomy
+        ranks <- strsplit(ranks, ";", fix=T)
+
+        taxa <- c("root", "phylum", "class", "order", "family", "genus", "species")
+        for (i in 1:length(ranks)) {
+            for (i in 1:length(taxa)) {
+                ranks[[i]][j]<-paste(taxa[i], ranks[[i]][j], sep="_") 
+            }
+        }
+
+        head(ranks)
+
+
         ranks <- strsplit(ranks, ";", fix=T)
         count <- 1L
         groups <- "Root"

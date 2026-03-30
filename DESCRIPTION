@@ -1,0 +1,39 @@
+Package: SimpleMetaPipeline
+Title: A Simple Bioinformatic Pipeline for Metabarcoding
+Version: 3.0.0
+Authors@R: person("Jake", "Williams", role = c("aut", "cre"),
+                  comment = c(ORCID = "0000-0003-2415-8584"))
+Description: A reproducible bioinformatic pipeline for metabarcoding data,
+    integrating Cutadapt, DADA2, LULU, VSEARCH/Swarm, IDTAXA and BLAST into a
+    single workflow controlled via a configuration object. Produces a unified
+    SeqDataTable retaining ESVs, OTUs, and curated variants simultaneously,
+    enabling multi-algorithm agreement tests.
+License: GPL-3
+URL: https://github.com/J-Cos/SimpleMetaPipeline
+BugReports: https://github.com/J-Cos/SimpleMetaPipeline/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.0
+Imports:
+    Biostrings,
+    cli,
+    dada2,
+    DECIPHER,
+    dplyr,
+    ggplot2,
+    gridExtra,
+    purrr,
+    rlang,
+    seqinr,
+    ShortRead,
+    stringr,
+    tibble,
+    tidyr
+Suggests:
+    lulu,
+    testthat (>= 3.0.0),
+    withr
+Remotes:
+    tobiasgf/lulu
+SystemRequirements: vsearch, swarm, cutadapt, blast+ (blastn)
+Config/testthat/edition: 3

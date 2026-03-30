@@ -16,16 +16,9 @@
     library(ShortRead)
     library(seqinr)
 
-
-    path <-"../BioinformaticPipeline_Env/FASTQs/EmmaRAWruns/EmmaAll_16s/CrossPacific"
-    #contents of this directory should be:
-        #Barcodes - this should contain a csv for each run which contains a list of the barcodes and the associated sample name
-        #Each Run folder, containing I1, R1 and R2 undetermined fastq,gzs
-        #NB - the order of th run folders must match the order of the barcode csvs to ensure they align - 
-
-
 # 1b) functions
     combineFastqSequences<-function(R1, I) {
+        numCycles<-length(I)
         seqs<-DNAStringSet(rep("", numCycles))
         quals<-BStringSet(rep("", numCycles))
         ids<-BStringSet(rep("", numCycles))
@@ -40,67 +33,78 @@
 
 
 # 1c) Directory locations
-    RunFolders<-list.dirs(file.path(path), full.names=FALSE, recursive=FALSE)
-    RunFolders<-RunFolders[RunFolders!="Barcodes"]
-    AllBarcodes<-list.files(file.path(path, "Barcodes"), pattern=".csv")
+    RunFolders<-list.dirs(file.path(path, "Runs"), recursive=FALSE, full.names=TRUE)
+    AllBarcodes<-list.files(file.path(path, "Barcodes"), full.names=TRUE,  pattern=".csv")
 
-
-# 2 ) combine R1 and I1 fastqs ahead of cutadapt demultiplexing
+#loop over all runs
     for (Run in 1: length(RunFolders)) {
-        FASTQfiles<-list.files(file.path(path, RunFolders[Run]), pattern="Undetermined_")    
-        I<-ShortRead::readFastq(file.path(path, RunFolders[Run], FASTQfiles[1]))
-        R1<-ShortRead::readFastq(file.path(path, RunFolders[Run], FASTQfiles[2]))
-        R1_New<-combineFastqSequences(R1, I)
 
-        
-        CombinedFastqsPath<-file.path(path,"../../..","CrossPacific_16s", "ModifiedMultiplexedFastqs", RunFolders[Run])
-        dir.create(CombinedFastqsPath, recursive=TRUE)
-        writeFastq(object=R1_New, file= file.path(CombinedFastqsPath, paste0("Combined_R1-I1.fastq.gz")) )
+    # 2 ) combine R1 and I1 fastqs ahead of cutadapt demultiplexing
+            FASTQpaths<-list.files( RunFolders[Run], pattern="Undetermined_", recursive=TRUE, full.names=TRUE)    
+            I<-ShortRead::readFastq(FASTQpaths[1])
+            R1<-ShortRead::readFastq(FASTQpaths[2])
+            R1_New<-combineFastqSequences(R1, I)
 
-        print(paste0("Written combined fastq from Run ", Run))
+            #write to ephemeral directory
+            CombinedFastqPath<-file.path(RunFolders[Run], "Combined_R1-I1.fastq.gz")
+            CombinedFastqPath<-str_replace(CombinedFastqPath, "Runs", "Runs_Combined_R1-I1_Fastqs")
+            CombinedFastqPath<-str_replace(CombinedFastqPath, "home", "ephemeral")
+            dir.create(CombinedFastqPath, recursive=TRUE)
+            writeFastq(object=R1_New, file= CombinedFastqPath )
 
-    }
+            print(paste0("Written combined fastq from Run ", Run))
 
-# 3) Demultiplex
 
-    #loop over all runs
-    for (Run in 1:length(RunFolders)) {
-            BarcodesPath<-file.path(path, "Barcodes",AllBarcodes[Run])
-            R1Path<-file.path(path,"../../..","CrossPacific_16s", "ModifiedMultiplexedFastqs", RunFolders[Run], "Combined_R1-I1.fastq.gz")
-            R2filename<-list.files(file.path(path, RunFolders[Run]), pattern="Undetermined_")[3]
-            R2Path<-file.path( path, RunFolders[Run], R2filename)
+    # 3) Demultiplex
 
-            #barcode prep
-                #make df of barcodes from this adapter
-                Barcodes_df<-read.csv(BarcodesPath)
+                BarcodesPath<-AllBarcodes[Run]
+                R1Path<-CombinedFastqPath
+                R2Path<-FASTQpaths[3]
 
-                #make barcode fasta path
-                BarcodeFastaPath<-file.path(path, "Barcodes",paste0("Run",Run,".fasta"))
-                #write fastas to this location
-                seqinr::write.fasta(sequences= as.list(Barcodes_df$barcode.sequence), 
-                                    names= Barcodes_df$sample, 
-                                    file.out= BarcodeFastaPath, 
-                                    open = "w", 
-                                    nbchar = 200, 
-                                    as.string = TRUE)
+                #barcode prep
+                    #make df of barcodes from this adapter
+                    Barcodes_df<-read.csv(BarcodesPath)
 
-            #seq prefiltering
-                # Create paths for prefiltered fastqs
-                path_filtered<-file.path(path,"../../..","CrossPacific_16s", "ModifiedMultiplexedFastqs", RunFolders[Run], "PrefilteredFastqs", c("Combined_R1-I1.fastq.gz", R2filename))
+                #extract barcode lengths to specify that compelte overlap is required in demultiplexing
+                if (length(unique(nchar(Barcodes_df$barcode.sequence)))!=1) {
+                    print(paste0("ERROR: Multiple Barcode lengths detected. As a result minimum overlap in demultiplexing cannot be set to a single length suitable for all barcode primers. Please note that this is a required to work around as anchoring adapters (using e.g. '-g ^file:pathtofastq' notation) appears impossible through an R system() command "))
+                } else {
+                    BarcodeLength<-unique(nchar(Barcodes_df$barcode.sequence))
+                    print(paste0("All barcodes are of length ", BarcodeLength))
+                }
 
-                #prefilter fastqs
-                #The presence of ambiguous bases (Ns) in the sequencing reads makes accurate mapping of short primer sequences difficult. Next we are going to “pre-filter” the sequences just to remove those with Ns, but perform no other filtering.
-                out <- dada2::filterAndTrim(R1Path, path_filtered[1], R2Path, path_filtered[2], maxN=0, rm.phix=TRUE, compress=TRUE, multithread=TRUE, verbose=TRUE) 
+                    #make barcode fasta path
+                    BarcodeFastaPath<-str_replace(BarcodesPath, ".csv", ".fasta")
+                    #write fastas to this location
+                    seqinr::write.fasta(sequences= as.list(Barcodes_df$barcode.sequence), 
+                                        names= Barcodes_df$sample, 
+                                        file.out= BarcodeFastaPath, 
+                                        open = "w", 
+                                        nbchar = 200, 
+                                        as.string = TRUE)
 
-            #demultiplexing
-                # Create paths for demultiplexed fastqs
-                path_demux<-file.path(path, "../../..", "CrossPacific_16s")
+                #seq prefiltering
+                    # Create paths for prefiltered fastqs
+                    path_filtered<-str_replace(CombinedFastqPath, "Combined_R1-I1_Fastqs", "Runs_prefiltered")
 
-                #now run cutadapt
-                system2( "cutadapt", args= c( "-e", 0.1, "--no-indels",  "--minimum-length", 1,  # options (10% error rate, no insertion/deletions, and zero length seqs discarded)
-                                            "-g", paste0("file:",BarcodeFastaPath),       #barcodes
-                                            "-o",   "/home/j/Dropbox/BioinformaticPipeline_Env/FASTQs/CrossPacific_16s/{name}_R1_001.fastq", "-p", "/home/j/Dropbox/BioinformaticPipeline_Env/FASTQs/CrossPacific_16s/{name}_R2_001.fastq",
-                                        path_filtered[[1]] ,  path_filtered[[2]]                       #inputs
-                                    )
-            ) 
-        }
+                    #prefilter fastqs
+                    #The presence of ambiguous bases (Ns) in the sequencing reads makes accurate mapping of short primer sequences difficult. Next we are going to “pre-filter” the sequences just to remove those with Ns, but perform no other filtering.
+                    out <- dada2::filterAndTrim(R1Path, path_filtered[1], R2Path, path_filtered[2], maxN=0, rm.phix=TRUE, compress=TRUE, multithread=TRUE, verbose=TRUE) 
+
+                #demultiplexing
+                    # Create paths for demultiplexed fastqs
+                    path_demux<-file.path("FASTQs", "CrossPacific_16s")
+
+                    #now run cutadapt
+                    system2( "cutadapt", args= c( "-e", 0, "--no-indels",  "--minimum-length", 1,  # options (0% error rate, no insertion/deletions, and zero length seqs discarded)
+                                                "--overlap", BarcodeLength, #overlap equal to length of barcodes + primers 
+                                                "-g", paste0("^file:",BarcodeFastaPath),       #barcodes
+                                                "-o",   file.path(path_demux, "{name}_R1_001.fastq"), "-p", file.path(path_demux, "{name}_R2_001.fastq"),
+                                                "-j", Ncores,
+                                                path_filtered[[1]] ,  path_filtered[[2]]                       #inputs
+                                        )
+                    )
+                print(paste0("Run ", Run,  " cutadapt complete"))
+                print(paste0(RunFolders[Run] ," matched with ", AllBarcodes[Run]))
+                 
+            }
